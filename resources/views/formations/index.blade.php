@@ -34,7 +34,7 @@
             <div class="container-fluid">
 
                 <div class="row">
-                    <div class="col-lg-12">
+                    <div class="col-md-12">
                         <div id="addproduct-accordion" class="custom-accordion">
 
                             <form id="inscriptionForm" method="post">
@@ -61,7 +61,7 @@
                                     <div id="addproduct-billinginfo-collapse" class="collapse show" data-bs-parent="#addproduct-accordion">
                                         <div class="p-4 border-top">
                                             <div class="row">
-                                                <div class="col-lg-4">
+                                                <div class="col-md-4">
                                                     <div class="mb-3">
                                                         <label for="lycee" class="form-label">Lycée d'Origine (Lycée ou Collège)</label>
                                                         <select class="form-control" data-trigger name="lycee"
@@ -108,7 +108,7 @@
                                             @if( session()->has("cycles"))
                                                 @if(mb_strtoupper(session("cycles")) != "BACHELIER")
                                                     <div class="row">
-                                                <div class="col-lg-6">
+                                                <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label for="etablissementsuperieur" class="form-label">Etablissement superieure d'Origine</label>
                                                         <select class="form-control" data-trigger name="etablissementsuperieur"
@@ -121,7 +121,7 @@
                                                         </select>
                                                     </div>
                                                 </div>
-                                                <div class="col-lg-6">
+                                                <div class="col-md-6">
                                                     <div class="">
                                                         <label for="specialite" class="form-label">Spécialités</label>
                                                         <select class="form-control" data-trigger name="specialite"
@@ -142,7 +142,7 @@
                                 </div>
                                 <div class="row mt-4 mb-4">
                                     <div class="col text-center">
-                                        <a href="" class="btn btn-danger"><i class="mdi mdi-close me-1"></i> Précédent</a>
+                                        <a href="{{route("infos.index")}}" class="btn btn-danger"><i class="mdi mdi-close me-1"></i> Précédent</a>
                                         <button type="submit" class="btn btn-success"><i class="mdi mdi-file-document-outline me-1"></i>Enrégistrez et continuez</button>
                                     </div>
                                 </div>
@@ -239,7 +239,7 @@
                     });
 
                     setTimeout(function () {
-                        window.location.href = "{{ route('choix.index') }}";
+                        window.location.href = response.redirect;
                     }, 1500);
                 }
                 else{

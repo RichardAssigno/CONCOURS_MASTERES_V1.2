@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Candidat;
 use App\Models\Document;
 use App\Models\Personne;
+use Dotenv\Util\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+
 
 class DocumentsController extends Controller
 {
@@ -15,11 +17,10 @@ class DocumentsController extends Controller
 
         $candidat = Candidat::getCandidat(Auth::guard("personne")->id(), session("sessions"));
 
-        //dd(Document::getDocuments($candidat->id));
-
         return view('documents.index', [
 
-            "documents" => Document::getDocuments($candidat->id),
+            "documents" => Document::getDocumentsCandidat($candidat->id),
+            "routeretour" => session("nombrefiliere") > 1 ? "choix.ordrechoix" : "choix.index",
 
         ]);
 
@@ -34,6 +35,8 @@ class DocumentsController extends Controller
             $file = $request->file('file');
 
             $noms = $candidat->nom . ' ' . $candidat->prenoms;
+
+            $document = Document::query()->findOrFail($id);
 
             $noms = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $noms);
 
@@ -50,16 +53,18 @@ class DocumentsController extends Controller
             $path = $file->store($folderName, 'public');
 
             // Enregistrement en base
-            $document = Document::create([
+            $dataDocument = [
                 'candidats_id' => $candidat->id,
                 'dossiersCandidature_id' => $idDossiercandidature,
                 'filePath'  => $path,
-            ]);
+            ];
+
+            $document->update($dataDocument);
 
             return response()->json([
                 'fileName' => $file->getClientOriginalName(),
                 'url' => asset("storage/" . $path),
-                'filePath' => $document->filePath,
+                'filePath' => $path,
             ]);
         }
 
@@ -82,7 +87,7 @@ class DocumentsController extends Controller
         }
 
         // Supprimer l'enregistrement du document dans la base
-        $document->delete();
+        $document->update(['filePath'  => null,]);
 
         return response()->json(['success' => true]);
     }

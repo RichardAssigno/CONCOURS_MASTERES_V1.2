@@ -106,7 +106,7 @@
                                 </div>
                                 <div class="row mt-4 mb-4">
                                     <div class="col text-center">
-                                        <button type="reset" class="btn btn-danger"><i class="mdi mdi-close me-1"></i> Retour</button>
+                                        <a href="{{route("choix.index")}}" class="btn btn-danger"><i class="mdi mdi-close me-1"></i> Retour</a>
                                         <button type="submit" class="btn btn-success"><i class="mdi mdi-file-document-outline me-1"></i> Enrégistrer et continuer</button>
                                     </div>
                                 </div>
@@ -138,6 +138,10 @@
 <script>
 
     $(document).ready(function(){
+
+        $('#nestable').nestable().on('change', function() {
+            console.log($('#nestable').nestable('serialize'));
+        });
 
         var updateOutput = function(e) {
 
@@ -206,7 +210,7 @@
                     });
 
                     setTimeout(function () {
-                        window.location.href = "{{ route('notes.index') }}";
+                        window.location.href = "{{ route('documents.index') }}";
                     }, 1500);
                 }
                 else{

@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="fr">
 
@@ -74,7 +75,7 @@
                                                 @if($filieres->isNotEmpty())
                                                     @php $numero = 1 @endphp
                                                     @foreach($filieres as $filiere)
-                                                        <div class="col-md-4 col-sm-6">
+                                                        <div class="col-md-4 col-sm-6 mb-3">
                                                             <div data-bs-toggle="collapse">
                                                                 <label class="card-radio-label mb-0">
                                                                     <input type="checkbox" name="choix[]" value="{{$filiere->idFiliere}}" id="info-address1" class="card-radio-input" {{ $choix->contains('idFiliere', $filiere->idFiliere) ? 'checked' : '' }}>
@@ -96,7 +97,7 @@
                                 </div>
                                 <div class="row mt-4 mb-4">
                                     <div class="col text-center">
-                                        <button type="reset" class="btn btn-danger"><i class="mdi mdi-close me-1"></i> Retour</button>
+                                        <a href="{{route($routeretour)}}" class="btn btn-danger"><i class="mdi mdi-close me-1"></i> Retour</a>
                                         <button type="submit" class="btn btn-success"><i class="mdi mdi-file-document-outline me-1"></i> Enrégistrer et continuer</button>
                                     </div>
                                 </div>
@@ -161,7 +162,7 @@
                     });
 
                     setTimeout(function () {
-                        window.location.href = "{{ route('choix.ordrechoix') }}";
+                        window.location.href = response.redirect;
                     }, 1500);
                 }
                 else{

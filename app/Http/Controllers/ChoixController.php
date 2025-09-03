@@ -18,6 +18,7 @@ class ChoixController extends Controller
         return view('choix.index', [
             "choix" => Choix::getChoixCandidat(Auth::guard("personne")->id(), session("sessions")),
             "filieres" => Filiere::getConcoursFilieres(session('sessions')),
+            "routeretour" => session("notes") === 1 ? "notes.index" : "formation.index",
 
         ]);
 
@@ -43,6 +44,8 @@ class ChoixController extends Controller
 
         $choix = Choix::getChoixCandidat(Auth::guard("personne")->id(), session("sessions"));
 
+        $route = session("nombrefiliere") > 1 ? "choix.ordrechoix" : "documents.index";
+
         if ($choix->isNotEmpty()){
 
             $choix->each->delete();
@@ -64,7 +67,10 @@ class ChoixController extends Controller
 
         }
 
-        return response()->json(['success' => "Enrégistrement effectué avec succès"], 200);
+        return response()->json([
+            'success' => "Enrégistrement effectué avec succès",
+            'redirect' => route($route)
+        ]);
 
     }
 

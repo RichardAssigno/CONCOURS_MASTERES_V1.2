@@ -104,7 +104,7 @@
                                 </div>
                                 <div class="row mt-4 mb-4">
                                     <div class="col text-center">
-                                        <button type="reset" class="btn btn-danger"><i class="mdi mdi-close me-1"></i> Retour</button>
+                                        <a href="{{route("formation.index")}}" class="btn btn-danger"><i class="mdi mdi-close me-1"></i> Retour</a>
                                         <button type="submit" class="btn btn-success"><i class="mdi mdi-file-document-outline me-1"></i> Enrégistrer et continuer</button>
                                     </div>
                                 </div>
@@ -217,7 +217,7 @@
                     });
 
                     setTimeout(function () {
-                        window.location.href = "{{ route('documents.index') }}";
+                        window.location.href = "{{ route('choix.index') }}";
                     }, 1500);
                 }
                 else{

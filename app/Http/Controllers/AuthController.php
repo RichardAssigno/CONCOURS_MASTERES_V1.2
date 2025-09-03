@@ -89,7 +89,7 @@ class AuthController extends Controller
 
         $personne = Personne::query()->where("email", "=", $data["email"])->first();
 
-        //$documentacharger = Dossierscandidature::listedocumentcandidature($data['sessions_id']);
+        $documentacharger = Dossierscandidature::listedocumentcandidature($data['sessions_id']);
 
         if(!is_null($personne)){
             $candidatConcours = Concours::getConcoursCandidat($personne->id, $data['sessions_id']);
@@ -114,13 +114,13 @@ class AuthController extends Controller
 
             }else{
 
-                $this->creercandidat($personne, $data['sessions_id']);
+                $candidat = $this->creercandidat($personne, $data['sessions_id']);
 
                 $candidatConcours = Concours::getConcoursCandidat($personne->id, $data['sessions_id']);
 
                 $this->miseensession($candidatConcours, $data['sessions_id']);
 
-               /* if ($documentacharger->isNotEmpty()){
+                if ($documentacharger->isNotEmpty()){
 
                     foreach ($documentacharger as $value){
 
@@ -135,7 +135,7 @@ class AuthController extends Controller
 
                     }
 
-                }*/
+                }
 
                 Auth::guard('personne')->login($personne);
                 $request->session()->regenerate(); // conseillé après login (anti fixation)
@@ -151,17 +151,38 @@ class AuthController extends Controller
 
             "email" => $data["email"],
             "password" => Hash::make($data["password"]),
+            "series_id" => 1,
+            "diplomes_id" => 1,
+            "specialites_id" => 1,
+            "etablissements_id" => 2,
+            "lycees_id" =>1,
 
         ];
 
         $personne = Personne::create($dataPersonne);
 
-        $this->creercandidat($personne, $data['sessions_id']);
+        $candidat = $this->creercandidat($personne, $data['sessions_id']);
 
         $candidatConcours = Concours::getConcoursCandidat($personne->id, $data['sessions_id']);
 
         $this->miseensession($candidatConcours, $data['sessions_id']);
 
+        if ($documentacharger->isNotEmpty()){
+
+            foreach ($documentacharger as $value){
+
+                $dataDocument = [
+
+                    "candidats_id" =>  $candidat->id,
+                    "dossiersCandidature_id" =>  $value->idDossierCandidature,
+
+                ];
+
+                Document::create($dataDocument);
+
+            }
+
+        }
 
         Auth::guard('personne')->login($personne);
         $request->session()->regenerate(); // conseillé après login (anti fixation)
@@ -282,6 +303,9 @@ class AuthController extends Controller
         session()->put('notes', $candidatConcours->notes);
         session()->put('cycles', $candidatConcours->libelleCycles);
         session()->put('nombrefiliere', $candidatConcours->nombrefiliere);
+        session()->put('photo_path', $candidatConcours->photo_path);
+        session()->put('photo_type', $candidatConcours->photo_type);
+        session()->put('photo_nom', $candidatConcours->photo_nom);
 
 
     }

@@ -18,6 +18,12 @@
             object-fit: cover; /* garde de belles proportions */
         }
 
+        .btn-supprimer:hover{
+
+            cursor: pointer;
+
+        }
+
     </style>
 
 </head>
@@ -47,7 +53,7 @@
             <div class="container-fluid">
 
                 <div class="row">
-                    <div class="col-lg-12">
+                    <div class="col-md-12">
                         <div id="addproduct-accordion" class="custom-accordion">
 
                             <!-- ==================== Photo ==================== -->
@@ -122,29 +128,29 @@
                                     <div id="addproduct-billinginfo-collapse" class="collapse show" data-bs-parent="#addproduct-accordion">
                                         <div class="p-4 border-top">
                                             <div class="row">
-                                                <div class="col-lg-4">
+                                                <div class="col-md-4">
                                                     <label class="form-label" for="nom">Nom</label>
                                                     <input id="nom" name="nom" type="text" value="{{ $personnes?->nom ?? '' }}" class="form-control" placeholder="Entrez votre nom">
                                                 </div>
-                                                <div class="col-lg-4">
+                                                <div class="col-md-4">
                                                     <label class="form-label" for="prenoms">Prénoms</label>
                                                     <input id="prenoms" name="prenoms" type="text" value="{{ $personnes?->prenoms ?? '' }}" class="form-control" placeholder="Entrez vos prénoms">
                                                 </div>
-                                                <div class="col-lg-4">
+                                                <div class="col-md-4">
                                                     <label class="form-label" for="dateNaissance">Date de Naissance</label>
                                                     <input id="dateNaissance" value="{{ $personnes?->dateNaissance ?? '' }}" name="dateNaissance" type="date" class="form-control">
                                                 </div>
                                             </div>
                                             <div class="row mt-3">
-                                                <div class="col-lg-4">
+                                                <div class="col-md-4">
                                                     <label class="form-label" for="lieuNaissance">Lieu de Naissance</label>
                                                     <input id="lieuNaissance" value="{{ $personnes?->lieuNaissance ?? '' }}" name="lieuNaissance" type="text" class="form-control" placeholder="Lieu de naissance">
                                                 </div>
-                                                <div class="col-lg-4">
+                                                <div class="col-md-4">
                                                     <label class="form-label" for="telephone">Téléphone</label>
                                                     <input id="telephone" value="{{ $personnes?->telephone ?? '' }}" name="telephone" type="text" class="form-control" placeholder="Téléphone">
                                                 </div>
-                                                <div class="col-lg-4">
+                                                <div class="col-md-4">
                                                     <div class="mb-3">
                                                         <label for="anneebacs_id" class="form-label">Année du BAC</label>
                                                         <select class="form-control" data-trigger name="anneebacs_id"
@@ -154,7 +160,10 @@
 
                                                                 @foreach($anneebacs as $value)
 
-                                                                    <option {{$personnes?->idAnneebac ?? 0 == $value->id ? "selected" : ""}} value="{{$value->id}}">{{$value->libelle}}</option>
+                                                                    <option {{ ($personnes?->idAnneebac ?? 0) == $value->id ? "selected" : "" }} value="{{$value->id}}">
+                                                                        {{$value->libelle}}
+                                                                    </option>
+
 
                                                                 @endforeach
 
@@ -169,8 +178,8 @@
                                                         <label for="genre" class="form-label">Genre</label>
                                                         <select class="form-control" data-trigger name="genre"
                                                                 id="genre">
-                                                            <option {{$personnes?->genre ?? '' == "Masculin" ? "selected": ""}}  value="M">Masculin</option>
-                                                            <option {{$personnes?->genre ?? '' == "Féminin" ? "selected": ""}} value="F">Féminin</option>
+                                                            <option {{($personnes?->genre ?? '') == "Masculin" ? "selected": ""}}  value="M">Masculin</option>
+                                                            <option {{($personnes?->genre ?? '') == "Féminin" ? "selected": ""}} value="F">Féminin</option>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -278,7 +287,7 @@
     });
 
     function addRemoveButton(file, dzInstance) {
-        let removeButton = Dropzone.createElement("<button class='btn btn-danger btn-sm mt-2'>Supprimer</button>");
+        let removeButton = Dropzone.createElement("<button class='btn btn-danger btn-sm mt-2 btn-supprimer'>Supprimer</button>");
         removeButton.addEventListener("click", function(e) {
             e.preventDefault();
             e.stopPropagation();

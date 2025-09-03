@@ -17,10 +17,15 @@ class InformationsPersonnellesController extends Controller
 
     public function index(){
 
+        $anneebacs = AnneeBac::query()->orderBy("id", "desc")->get();
+
+        $personne = Personne::getInfosCandidat(Auth::guard("personne")->id(), session("sessions"));
+
         return view('informationspersonnelles.index', [
 
-            "anneebacs" => AnneeBac::query()->orderBy("id", "desc")->get(),
-            "personnes"  => Personne::getInfosCandidat(Auth::guard("personne")->id(), session("sessions")),
+            "anneebacs" => $anneebacs,
+            "personnes"  => $personne,
+            "titre"  => "Informations Personnelles",
 
         ]);
 
@@ -140,6 +145,10 @@ class InformationsPersonnellesController extends Controller
                 ];
 
                 $personne->update($dataPersonnes);
+
+                $personnepourphoto = Personne::getInfosCandidat($personne->id, session("sessions"));
+
+                session()->put('photo_path', $personnepourphoto->photo_path);
 
                 return response()->json(['success' => "Enrégistrement effectué avec succès"], 200);
 

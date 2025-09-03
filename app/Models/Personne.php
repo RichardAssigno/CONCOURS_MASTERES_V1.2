@@ -73,6 +73,7 @@ class Personne extends Authenticatable
             'ab.libelle as libelleAnneebac',
             'c.id as idCandidat',
             'c.matricule',
+            'c.valideDossier',
             'c.sessions_id',
             'ph.id as idPhoto',
             'ph.photo_path',

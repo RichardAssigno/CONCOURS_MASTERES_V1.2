@@ -28,6 +28,21 @@
             border-radius: 8px; /* arrondir un peu */
         }
 
+        /* Positionne le bouton en haut à droite */
+        .dz-preview {
+            position: relative; /* nécessaire pour le positionnement absolu du bouton */
+        }
+
+        .dz-remove-btn {
+            z-index: 100000000;
+            margin-top: 50px;
+        }
+
+        .dz-remove-btn:hover {
+            background: rgba(220, 53, 69, 1);
+        }
+
+
 
     </style>
 
@@ -138,8 +153,8 @@
                                 </div>
                                 <div class="row mt-4 mb-4">
                                     <div class="col text-center">
-                                        <button type="reset" class="btn btn-danger"><i class="mdi mdi-close me-1"></i> Retour</button>
-                                        <button type="submit" class="btn btn-success"><i class="mdi mdi-file-document-outline me-1"></i> Enrégistrer et continuer</button>
+                                        <a href="{{route($routeretour)}}" class="btn btn-danger"><i class="mdi mdi-close me-1"></i> Retour</a>
+                                        <a href="{{route("tableaudebord.index")}}" class="btn btn-success"><i class="mdi mdi-file-document-outline me-1"></i> Tableau de Bord</a>
                                     </div>
                                 </div>
                             </form>
@@ -171,6 +186,19 @@
 @include("partials.js")
 
 <script>
+
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        icon: "success",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+    })
 
     document.addEventListener("DOMContentLoaded", function () {
         Dropzone.autoDiscover = false;
@@ -265,11 +293,14 @@
 
             // 🔹 Bouton Supprimer personnalisé
             function addRemoveButton(file, dzInstance) {
-                // Vérifier si déjà ajouté
                 if (file._removeButton) return;
 
+                /*let removeButton = Dropzone.createElement(
+                    "<button type='button' class='dz-remove-btn btn btn-danger btn-sm' title='Supprimer'>&times;</button>"
+                );*/
+
                 let removeButton = Dropzone.createElement(
-                    "<button type='button' class='btn btn-danger btn-sm mt-2'>Supprimer</button>"
+                    "<button type='button' class='btn btn-danger btn-sm mt-2 dz-remove-btn'>Supprimer</button>"
                 );
 
                 removeButton.addEventListener("click", function (e) {
@@ -277,7 +308,7 @@
                     e.stopPropagation();
 
                     $.ajax({
-                        url: "{{route("documents.supprimer")}}",
+                        url: "{{ route('documents.supprimer') }}",
                         type: "POST",
                         data: {
                             _token: document.querySelector('meta[name="csrf-token"]').content,
@@ -286,10 +317,8 @@
                             idDossiercandidature: file.idDossiercandidature || null
                         },
                         success: function () {
-                            // On retire seulement l'aperçu du fichier, mais Dropzone reste
-                            if (file.previewElement && file.previewElement.parentNode) {
-                                file.previewElement.parentNode.removeChild(file.previewElement);
-                            }
+                            // 🔹 Retirer correctement le fichier de Dropzone
+                            dzInstance.removeFile(file);
 
                             Toast.fire({
                                 title: "Supprimé avec succès",
@@ -304,9 +333,10 @@
                     });
                 });
 
-                file._removeButton = removeButton; // éviter doublons
+                file._removeButton = removeButton;
                 file.previewElement.appendChild(removeButton);
             }
+
         });
     });
 

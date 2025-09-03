@@ -19,6 +19,7 @@ class FormationsController extends Controller
 {
 
     public function index(){
+
         return view('formations.index', [
             "personnes" => Personne::getInfosCandidat(Auth::guard("personne")->id(), session("sessions")),
             "diplomes" => Diplome::query()->orderBy("libelle", "asc")->get(),
@@ -55,6 +56,10 @@ class FormationsController extends Controller
 
         $candidatConcours = Concours::getConcoursCandidat(Auth::guard('personne')->id(), session("sessions"));
 
+        $route = session("notes") === 1 ? "notes.index" : "choix.index";
+
+        //dd($route);
+
         if (mb_strtoupper($candidatConcours->libelleCycles) == "BACHELIER") {
 
             $dataPersonnes = [
@@ -65,7 +70,10 @@ class FormationsController extends Controller
 
             $personne->update($dataPersonnes);
 
-            return response()->json(['success' => "Enrégistrement effectué avec succès"], 200);
+            return response()->json([
+                'success' => "Enrégistrement effectué avec succès",
+                'redirect' => route($route)
+            ], 200);
 
         }
 
@@ -81,7 +89,10 @@ class FormationsController extends Controller
 
             $personne->update($dataPersonnes);
 
-            return response()->json(['success' => "Enrégistrement effectué avec succès"], 200);
+            return response()->json([
+                'success' => "Enrégistrement effectué avec succès",
+                'redirect' => route($route)
+            ], 200);
 
         }
         return response()->json([

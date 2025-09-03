@@ -67,6 +67,9 @@ class Concours extends Model
                 'p.telephone',
                 'p.nomEtPrenomsDunProche',
                 'p.telephoneDunProche',
+                'ph.photo_path',
+                'ph.photo_type',
+                'ph.photo_nom',
                 'ab.id as idAnneeBac',
                 'ab.libelle as libelleAnneeBac',
                 'p.etablissementOrigine',
@@ -82,6 +85,7 @@ class Concours extends Model
             ->join('session as s', 's.concours_id', '=', 'co.id')
             ->join('candidats as c', 'c.sessions_id', '=', 's.id')
             ->join('personnes as p', 'p.id', '=', 'c.personnes_id')
+            ->leftJoin('photos as ph', 'ph.id', '=', 'p.photos_id')
             ->join('anneebacs as ab', 'ab.id', '=', 'p.anneebacs_id')
             ->where('p.id', $idPersonne)
             ->where('s.id', $idSessionConcours)

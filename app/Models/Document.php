@@ -19,11 +19,11 @@ class Document extends Model
 
     ];
 
-    public static function getDocuments($candidatId)
+    public static function getDocumentsCandidat($candidatId)
     {
         return DB::table('documentsdossiers as dd')
             ->join('dossierscandidatures as dc', 'dc.documentsdossiers_id', '=', 'dd.id')
-            ->leftJoin('documents as d', 'd.dossiersCandidature_id', '=', 'dc.id')
+            ->join('documents as d', 'd.dossiersCandidature_id', '=', 'dc.id')
             ->join('candidats as c', 'c.id', '=', 'd.candidats_id')
             ->join('session as s', 's.id', '=', 'c.sessions_id')
             ->where('c.id', $candidatId)
@@ -37,6 +37,23 @@ class Document extends Model
                 'c.id as idCandidat',
                 'd.id as idDocument',
                 'd.filePath'
+            )
+            ->get();
+    }
+
+    public static function getDocuments($sessionId)
+    {
+        return DB::table('documentsdossiers as dd')
+            ->join('dossierscandidatures as dc', 'dc.documentsdossiers_id', '=', 'dd.id')
+            ->join('session as s', 's.id', '=', 'dc.sessions_id')
+            ->where('s.id', $sessionId)
+            ->groupBy('dd.id')
+            ->select(
+                'dd.id as idDocumentdossier',
+                'dd.libelle as libelleDocumentdossier',
+                'dd.code as codeDocumentdossier',
+                'dd.requis',
+                'dc.id as idDossiercandidature',
             )
             ->get();
     }
