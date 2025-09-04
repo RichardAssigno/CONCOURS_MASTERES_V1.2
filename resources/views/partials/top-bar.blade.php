@@ -131,7 +131,7 @@
                         </li>
 
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-document" role="button">
+                            <a class="nav-link dropdown-toggle arrow-none" href="{{route("fiche.telecharger")}}" id="topnav-document" role="button">
                                 <i class="icon nav-icon" data-eva="file-text-outline"></i>
                                 <span data-key="t-pages">Ma Fiche</span>
                             </a>

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChoixController;
 use App\Http\Controllers\DocumentsController;
+use App\Http\Controllers\FicheController;
 use App\Http\Controllers\FormationsController;
 use App\Http\Controllers\InformationsPersonnellesController;
 use App\Http\Controllers\NotesController;
@@ -28,6 +29,8 @@ Route::middleware('auth:personne')->group(function () {
     Route::get('tableau-de-bord', [TableaudebordController::class, 'index'])->name('tableaudebord.index');
     Route::get('se-déconnecter', [AuthController::class, 'logout'])->name('logout');
 
+    Route::post('/connecte-a-un-concours', [AuthController::class, 'connexionconcours'])->name('changer.session');
+
     Route::get('/informations-personnelles', [InformationsPersonnellesController::class, 'index'])->name('infos.index');
     Route::post('/ajout-informations-personnelles', [InformationsPersonnellesController::class, 'ajout'])->name('infos.ajout');
     Route::post('/ajout-photos', [InformationsPersonnellesController::class, 'ajoutphoto'])->name('infos.ajoutphoto');
@@ -47,5 +50,8 @@ Route::middleware('auth:personne')->group(function () {
     Route::get('/documents', [DocumentsController::class, 'index'])->name('documents.index');
     Route::post('/ajouter-document/{id}/{idDossiercandidature}', [DocumentsController::class, 'ajouter'])->name('documents.ajout');
     Route::post('/supprimer-document', [DocumentsController::class, 'supprimerdocument'])->name('documents.supprimer');
+
+    Route::get('/impression-fiche-de-preinscription', [FicheController::class, 'telecharger'])->name('fiche.telecharger');
+
 
 });

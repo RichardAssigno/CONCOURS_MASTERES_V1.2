@@ -4,6 +4,11 @@
 <script src="{{asset("assets/libs/simplebar/simplebar.min.js")}}"></script>
 <script src="{{asset("assets/libs/eva-icons/eva.min.js")}}"></script>
 
+
+<script src="{{asset('assets/js/select2/js/select2.min.js')}}"></script>
+
+<script src="{{asset('assets/js/pages/form-select2.init.js')}}"></script>
+
 <!-- choices js -->
 <script src="{{asset("assets/libs/choices.js/public/assets/scripts/choices.min.js")}}"></script>
 

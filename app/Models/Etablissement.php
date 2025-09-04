@@ -9,4 +9,11 @@ class Etablissement extends Model
 
     protected $table = "etablissement";
 
+    protected $fillable = [
+        'code',
+        'codeEtablissement',
+        'libelle',
+        'supprimer',
+    ];
+
 }

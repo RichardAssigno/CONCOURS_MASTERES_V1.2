@@ -78,18 +78,10 @@
                             <!-- end col -->
                             <div class="col-xl-4">
                                 <div class="card">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-shrink-0 me-3">
-                                                <div class="avatar">
-                                                    <div class="avatar-title rounded bg-primary bg-gradient">
-                                                        <i data-eva="people" class="fill-white"></i>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                    <div class="card-body text-center">
+                                        <div class="">
                                             <div class="flex-grow-1">
-                                                <p class="text-muted mb-1">Ma fiche</p>
-                                                <h6 class="mb-0"><a href="" style="color: black">Imprimer fiche</a></h6>
+                                                <h6 class="mb-0"><a href="{{route("fiche.telecharger")}}" class="btn btn-primary text-white" style="color: black">Imprimer ma fiche</a></h6>
                                             </div>
                                         </div>
                                     </div>
@@ -136,7 +128,7 @@
                                                         <div class="d-flex">
                                                             <div class="avatar">
                                                                 <span class="avatar-title rounded bg-light text-danger font-size-16">
-                                                                    <img src="assets/images/companies/img-1.png" alt="" height="30">
+                                                                    <img src="{{asset("assets/images/logo-dark-sm.png")}}" alt="" height="30">
                                                                 </span>
                                                             </div>
                                                             <div class="ms-auto">
@@ -153,9 +145,9 @@
 
                                                         <div class="flex-grow-1 mt-4">
                                                             <h5 class="font-size-15"><a href="javascript: void(0);" class="text-dark">{{$concours->libelleConcours}}</a></h5>
-                                                            <p class="text-muted mb-0">Etat d'avancement de mon inscription</p>
+                                                            {{--<p class="text-muted mb-0">Etat d'avancement de mon inscription</p>--}}
 
-                                                            <div class="mt-3 mb-1">
+                                                            {{--<div class="mt-3 mb-1">
                                                                 <div class="row align-items-center">
                                                                     <div class="col">
                                                                         <div class="progress" style="height: 6px;">
@@ -166,13 +158,21 @@
                                                                         <h6 class="mb-0 font-size-13"> 40%</h6>
                                                                     </div>
                                                                 </div>
-                                                            </div>
+                                                            </div>--}}
                                                         </div>
                                                     </div>
                                                     <div class="px-4 py-2 border-top">
                                                         <div class="text-center btn-sm">
 
-                                                            <a href="{{route("tableaudebord.index")}}" class="btn btn-primary waves-effect waves-light btn-sm"><i class="mdi mdi-file-document-outline me-1"></i> Se connecter</a>
+                                                            @php $isCurrent = $concours->idSession == session('sessions'); @endphp
+
+                                                            <a href="javascript:void(0);"
+                                                               class="btn btn-sm {{ $isCurrent ? 'btn-success disabled' : 'btn-primary change-session' }}"
+                                                               data-id="{{ $concours->idSession }}"
+                                                               @if($isCurrent) aria-disabled="true" @endif>
+                                                                <i class="mdi mdi-file-document-outline me-1"></i>
+                                                                {{ $isCurrent ? 'Connecté' : 'Se connecter' }}
+                                                            </a>
 
                                                         </div>
                                                     </div>
@@ -631,18 +631,63 @@
     </div>
 </div>
 
-<!-- JAVASCRIPT -->
-<script src="assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="assets/libs/metismenujs/metismenujs.min.js"></script>
-<script src="assets/libs/simplebar/simplebar.min.js"></script>
-<script src="assets/libs/eva-icons/eva.min.js"></script>
+@include("partials.js")
 
-<!-- apexcharts -->
-<script src="assets/libs/apexcharts/apexcharts.min.js"></script>
+<script>
 
-<script src="assets/js/pages/dashboard.init.js"></script>
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        icon: "success",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+    })
 
-<script src="assets/js/app.js"></script>
+    $(document).on('click', '.change-session', function (e) {
+        e.preventDefault();
+
+        let idSession = $(this).data('id');
+
+        $.ajax({
+            url: "{{ route('changer.session') }}",
+            type: "POST",
+            data: {
+                idSession: idSession,
+                _token: "{{ csrf_token() }}"
+            },
+            success: function (response) {
+                if (response.success) {
+                    Toast.fire({
+                        title: response.message, // 🔹 car c'est ici que le message est stocké
+                        position: "top-end",
+                        icon: "success",
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1500);
+                }
+            },
+            error: function () {
+                Swal.fire({
+                    title: "Echec",
+                    text: "Echec de changement de concours",
+                    icon: "error"
+                });
+            }
+        });
+    });
+
+
+
+</script>
 
 </body>
 

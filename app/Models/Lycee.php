@@ -9,4 +9,9 @@ class Lycee extends Model
 
     protected $table = "lycees";
 
+    protected $fillable = [
+        'codeLycee',
+        'libelle',
+    ];
+
 }

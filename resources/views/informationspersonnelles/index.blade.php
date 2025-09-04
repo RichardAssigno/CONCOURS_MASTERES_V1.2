@@ -153,7 +153,7 @@
                                                 <div class="col-md-4">
                                                     <div class="mb-3">
                                                         <label for="anneebacs_id" class="form-label">Année du BAC</label>
-                                                        <select class="form-control" data-trigger name="anneebacs_id"
+                                                        <select class="form-select select2" name="anneebacs_id"
                                                                 id="anneebacs_id">
                                                             <option value="">Sélectionnez</option>
                                                             @if($anneebacs->isNotEmpty())
@@ -176,7 +176,7 @@
                                                 <div class="col-md-4">
                                                     <div class="mb-3">
                                                         <label for="genre" class="form-label">Genre</label>
-                                                        <select class="form-control" data-trigger name="genre"
+                                                        <select class="form-select select2" name="genre"
                                                                 id="genre">
                                                             <option {{($personnes?->genre ?? '') == "Masculin" ? "selected": ""}}  value="M">Masculin</option>
                                                             <option {{($personnes?->genre ?? '') == "Féminin" ? "selected": ""}} value="F">Féminin</option>
@@ -228,6 +228,15 @@
 @include("partials.js")
 
 <script>
+
+    $(document).ready(function () {
+        $('.select2').select2({
+            placeholder: "Sélectionnez un élément",
+            allowClear: true
+        });
+
+    });
+
     Dropzone.autoDiscover = false;
 
     let dz = new Dropzone("#myDropzone", {

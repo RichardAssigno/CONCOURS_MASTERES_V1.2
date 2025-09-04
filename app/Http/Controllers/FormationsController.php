@@ -20,19 +20,28 @@ class FormationsController extends Controller
 
     public function index(){
 
+        //dd(Serie::query()->orderBy("libelle", "asc")->get());
+
         return view('formations.index', [
             "personnes" => Personne::getInfosCandidat(Auth::guard("personne")->id(), session("sessions")),
             "diplomes" => Diplome::query()->orderBy("libelle", "asc")->get(),
-            "series" => Serie::query()->orderBy("libelleSerie", "asc")->get(),
-            "specialites" => Specialite::query()->orderBy("libelleSpecialite", "asc")->get(),
+            "series" => Serie::query()->orderBy("libelle", "asc")->get(),
+            "specialites" => Specialite::query()->orderBy("libelle", "asc")->get(),
             "lycees" => Lycee::query()->orderBy("libelle", "asc")->get(),
-            "etablissements" => Etablissement::query()->orderBy("libelleEtablissement", "asc")->get(),
+            "etablissements" => Etablissement::query()->orderBy("libelle", "asc")->get(),
         ]);
 
     }
 
     public function ajout(Request $request)
     {
+        /*if($request->filled("lycee_autre") || $request->filled("serie_autre")) {
+
+            dd("Je suis dedans");
+
+        }
+
+        dd("Je ne suis pas dedans");*/
 
         $validator = Validator::make($request->all(),[
             'lycee' => "required",
@@ -58,14 +67,16 @@ class FormationsController extends Controller
 
         $route = session("notes") === 1 ? "notes.index" : "choix.index";
 
-        //dd($route);
+        $lycee   = $this->createOrUpdateIfFilled($request, 'lycee_autre', Lycee::class);
+        $serie   = $this->createOrUpdateIfFilled($request, 'serie_autre', Serie::class);
+        $diplome = $this->createOrUpdateIfFilled($request, 'diplome_autre', Diplome::class);
 
         if (mb_strtoupper($candidatConcours->libelleCycles) == "BACHELIER") {
 
             $dataPersonnes = [
-                'series_id'=>$data['serie'],
-                'diplomes_id'=>$data['diplome'],
-                'lycees_id'=>$data['lycee'],
+                'series_id'=>$serie ?? $data['serie'],
+                'diplomes_id'=>$diplome ?? $data['diplome'],
+                'lycees_id'=>$lycee ?? $data['lycee'],
             ];
 
             $personne->update($dataPersonnes);
@@ -79,12 +90,15 @@ class FormationsController extends Controller
 
         if (!is_null($data["etablissementsuperieur"]) && !is_null($data["specialite"])) {
 
+            $etablissement   = $this->createOrUpdateIfFilled($request, 'etablissement_autre', Etablissement::class);
+            $specialite   = $this->createOrUpdateIfFilled($request, 'specialite_autre', Specialite::class);
+
             $dataPersonnes = [
-                'series_id'=>$data['serie'],
-                'diplomes_id'=>$data['diplome'],
-                'etablissements_id'=>$data['etablissementsuperieur'],
-                'specialites_id'=>$data['specialite'],
-                'lycees_id'=>$data['lycee'],
+                'series_id'=>$serie ?? $data['serie'],
+                'diplomes_id'=>$diplome ?? $data['diplome'],
+                'etablissements_id'=>$etablissement ?? $data['etablissementsuperieur'],
+                'specialites_id'=>$specialite ?? $data['specialite'],
+                'lycees_id'=>$lycee ?? $data['lycee'],
             ];
 
             $personne->update($dataPersonnes);
@@ -105,5 +119,21 @@ class FormationsController extends Controller
 
 
     }
+
+    protected function createOrUpdateIfFilled($request, $field, $model)
+    {
+        if ($request->filled($field)) {
+
+            $element = $model::updateOrCreate(
+                ['libelle' => $request->$field],
+                ['libelle' => mb_strtoupper($request->$field)]
+            );
+
+            return $element->id;
+        }
+
+        return null;
+    }
+
 
 }

@@ -264,6 +264,35 @@ class AuthController extends Controller
 
     }
 
+    public function connexionconcours(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'idSession' => 'required|integer'
+        ], [
+
+            "idSession.required" => "L'id de la session est obligatoire",
+
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $data = $validator->validate();
+
+        $candidatConcours = Concours::getConcoursCandidat(Auth::guard('personne')->id(), $data['idSession']);
+
+        $this->miseensession($candidatConcours, $data['idSession']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Concours changé avec succès !',
+            'idSession' => $request->idSession
+        ]);
+
+    }
+
     public function logout(Request $request)
     {
         Auth::guard('personne')->logout();

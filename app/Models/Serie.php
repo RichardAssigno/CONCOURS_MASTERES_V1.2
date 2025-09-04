@@ -9,4 +9,10 @@ class Serie extends Model
 
     protected $table = "series";
 
+    protected $fillable = [
+
+        "libelle"
+
+    ];
+
 }

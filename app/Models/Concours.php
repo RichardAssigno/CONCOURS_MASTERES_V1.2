@@ -21,11 +21,33 @@ class Concours extends Model
 
 
     public static function ConcoursCandidats($idCandidat){
-
-        //INNER JOIN annees a ON a.id = s.annees_id
-
-        return static::query()->select('co.id as idConcours', 'co.libelleConcours', 'co.codeConcours','co.afficheNouveauBac','co.ponderationMoyenneTest','co.notes','co.nouveauBachelier', 's.id as idSession', 'a.libelle as libelleAnnee', 'c.id as idCandidat', 'c.matricule', 'p.id as idPersonne', 'p.nom', 'p.prenoms', 'p.email', 'p.dateNaissance', 'p.lieuNaissance', 'p.genre', 'p.telephone',
-            'p.nomEtPrenomsDunProche', 'p.telephoneDunProche','ab.id as idAnneeBac', 'ab.libelle as libelleAnneeBac', 'p.etablissementOrigine', 'p.etablissementSuperieurOrigine', 'p.specialite', 'p.serie', 'p.diplome', 'cy.id as idCycle')
+        return static::query()->select(
+            'co.id as idConcours',
+            'co.libelleConcours',
+            'co.codeConcours',
+            'co.afficheNouveauBac',
+            'co.ponderationMoyenneTest',
+            'co.notes',
+            'co.nouveauBachelier',
+            's.id as idSession',
+            'a.libelle as libelleAnnee',
+            'c.id as idCandidat',
+            'c.matricule',
+            'p.id as idPersonne',
+            'p.nom',
+            'p.prenoms',
+            'p.email',
+            'p.dateNaissance',
+            'p.lieuNaissance',
+            'p.genre',
+            'p.telephone',
+            'p.nomEtPrenomsDunProche',
+            'p.telephoneDunProche',
+            's.id as idSession',
+            'ab.id as idAnneeBac',
+            'ab.libelle as libelleAnneeBac',
+            'cy.id as idCycle'
+        )
             ->from('concours as co')
             ->join('concourscycles as cc','cc.concours_id','=','co.id')
             ->join('cycles as cy','cy.id','=','cc.cycles_id')
@@ -35,10 +57,10 @@ class Concours extends Model
             ->join("personnes as p", "p.id", "=", "c.personnes_id")
             ->join("anneebacs as ab", "ab.id", "=", "p.anneebacs_id")
             ->where('p.id', '=', $idCandidat)
-            /*->where('a.statut', '=', 1)*/
             ->orderBy('s.id','desc')
             ->get();
     }
+
 
     public static function getConcoursCandidat($idPersonne, $idSessionConcours)
     {
@@ -67,22 +89,22 @@ class Concours extends Model
                 'p.telephone',
                 'p.nomEtPrenomsDunProche',
                 'p.telephoneDunProche',
+                'l.id as idLogo',
+                'l.path',
                 'ph.photo_path',
                 'ph.photo_type',
                 'ph.photo_nom',
                 'ab.id as idAnneeBac',
                 'ab.libelle as libelleAnneeBac',
-                'p.etablissementOrigine',
-                'p.etablissementSuperieurOrigine',
-                'p.specialite',
-                'p.serie',
-                'p.diplome',
+                'a.libelle as libelleAnnee',
                 DB::raw('COUNT(fi.id) as nombrefiliere') // Ajout du COUNT
             )
+            ->leftJoin('logos as l', 'l.id', '=', 'co.logos_id')
             ->join('filieres as fi', 'fi.concours_id', '=', 'co.id')
             ->join('concourscycles as cc', 'cc.concours_id', '=', 'co.id')
             ->join('cycles as cy', 'cy.id', '=', 'cc.cycles_id')
             ->join('session as s', 's.concours_id', '=', 'co.id')
+            ->join('annees as a', 'a.id', '=', 's.annees_id')
             ->join('candidats as c', 'c.sessions_id', '=', 's.id')
             ->join('personnes as p', 'p.id', '=', 'c.personnes_id')
             ->leftJoin('photos as ph', 'ph.id', '=', 'p.photos_id')
