@@ -385,7 +385,7 @@ body[data-sidebar-size="sm"] .footer {
   right: 70px; }
 
 body[data-layout="horizontal"] .footer {
-  right: 0 !important; }
+    right: 0 !important; }
 
 body[data-layout-mode="dark"] .footer {
   background-color: #22354e;

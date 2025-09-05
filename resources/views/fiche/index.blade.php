@@ -213,6 +213,29 @@
 </table>
 </div>
 
+@if(!is_null($candidat->professions) && !is_null($candidat->employeurs) && !is_null($candidat->experiences))
+
+    <div style="border: 1px solid #cccccc; margin-bottom: 12px; padding: 5px">
+        <div class="section-title">Informations sur l'Emploi</div>
+        <table class="kv">
+            <tr>
+                <td class="k">Profession :</td>
+                <td class="v"><b>{{mb_strtoupper($candidat->professions)}}</b></td>
+            </tr>
+            <tr>
+                <td class="k">Employeur :</td>
+                <td class="v"><b>{{mb_strtoupper($candidat->employeurs)}}</b></td>
+            </tr>
+            <tr>
+                <td class="k">Experience :</td>
+                <td class="v"><b>{{mb_strtoupper($candidat->experiences)}}</b></td>
+            </tr>
+
+        </table>
+    </div>
+
+@endif
+
 <div style="border: 1px solid #cccccc; margin-bottom: 12px; padding: 5px">
     <div class="section-title">Informations relatives au concours</div>
     <table class="kv">

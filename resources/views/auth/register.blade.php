@@ -24,9 +24,9 @@
                                         <div class="w-100">
                                             <div class="d-flex flex-column h-100">
                                                 <div class="mb-4 mb-md-5">
-                                                    <a href="index.html" class="d-block auth-logo">
-                                                        <img src={{asset("assets/images/logo-dark.png")}}"" alt="" height="22" class="auth-logo-dark me-start">
-                                                        <img src="{{asset("assets/images/logo-light.png")}}" alt="" height="22" class="auth-logo-light me-start">
+                                                    <a href="#" class="d-block auth-logo">
+                                                        <img src="{{asset("assets/images/logo-dark.png")}}" alt="Logo INP-HB" width="70" height="70" class="auth-logo-dark me-start">
+                                                        <img src="{{asset("assets/images/logo-light.png")}}" alt="Logo INP-HB" width="70" height="70" class="auth-logo-light me-start">
                                                     </a>
                                                 </div>
                                                 <div class="auth-content my-auto">
@@ -35,7 +35,7 @@
                                                         @csrf
 
                                                         <div class="mb-3">
-                                                            <select class="form-control" id="sessions_id" name="sessions_id" placeholder="Saisir pour rechercher">
+                                                            <select class="form-control select2" id="sessions_id" name="sessions_id" placeholder="Saisir pour rechercher">
                                                                 <option value="">Choisissez un Concours</option>
 
                                                                 @if(isset($concours))
@@ -188,18 +188,14 @@
 
 <script type="text/javascript">
 
-    document.addEventListener("DOMContentLoaded", function () {
-        var element = document.getElementById('sessions_id');
-        if (element) {
-            new Choices(element, {
-                searchPlaceholderValue: "Rechercher votre Concours ici",
-                itemSelectText: '',
-            });
-        }
-    });
 
 
     $(document).ready(function() {
+
+        $('.select2').select2({
+            placeholder: "Sélectionnez un concours",
+            allowClear: true
+        });
 
         const Toast = Swal.mixin({
             toast: true,

@@ -23,9 +23,9 @@
                                         <div class="w-100">
                                             <div class="d-flex flex-column h-100">
                                                 <div class="mb-4 mb-md-5">
-                                                    <a href="index.html" class="d-block auth-logo">
-                                                        <img src={{asset("assets/images/logo-dark.png")}}"" alt="" height="22" class="auth-logo-dark me-start">
-                                                        <img src="{{asset("assets/images/logo-light.png")}}" alt="" height="22" class="auth-logo-light me-start">
+                                                    <a href="#" class="d-block auth-logo">
+                                                        <img src="{{asset("assets/images/logo-dark.png")}}" alt="Logo INP-HB" width="70" height="70" class="auth-logo-dark me-start">
+                                                        <img src="{{asset("assets/images/logo-light.png")}}" alt="Logo INP-HB" width="70" height="70" class="auth-logo-light me-start">
                                                     </a>
                                                 </div>
                                                 <div class="auth-content my-auto">
@@ -177,7 +177,7 @@
 
                     <div class="mb-3">
                         <label for="concours-select" class="form-label">Choisissez le concours dont vous voulez vous connecter</label>
-                        <select class="form-select" name="sessions_id" id="concours-select" required>
+                        <select class="form-control select2" name="sessions_id" id="concours-select" required>
                             <option value="">Sélectionnez un concours</option>
                         </select>
                     </div>
@@ -197,6 +197,13 @@
 <script type="text/javascript">
 
     $(document).ready(function() {
+
+        $('.select2').select2({
+            placeholder: "Sélectionnez un élément",
+            allowClear: true,
+            width: "100%",
+            dropdownParent: $('#choixConcoursModal') // ✅ très important
+        });
 
         const Toast = Swal.mixin({
             toast: true,

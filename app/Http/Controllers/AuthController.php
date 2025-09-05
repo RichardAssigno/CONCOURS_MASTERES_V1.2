@@ -32,8 +32,6 @@ class AuthController extends Controller
 
     public function inscription($code = null){
 
-
-
         if(!is_null($code)){
 
             $concours = Concours::concoursaveccode($code);
