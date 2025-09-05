@@ -32,7 +32,10 @@ class Personne extends Authenticatable
         'serie',
         'series_id',
         'diplome',
-        'photos_id'
+        'photos_id',
+        'professions',
+        'employeurs',
+        'experiences',
     ];
 
     protected $hidden = [
@@ -57,6 +60,9 @@ class Personne extends Authenticatable
             'p.etablissementSuperieurOrigine',
             'p.specialite',
             'p.diplome',
+            'p.professions',
+            'p.employeurs',
+            'p.experiences',
             'l.id as idLycee',
             'l.libelle as libelleLycee',
             'e.id as idEtablissement',

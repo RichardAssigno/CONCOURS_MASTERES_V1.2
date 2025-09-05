@@ -95,6 +95,16 @@
                                 <span data-key="t-apps">Ma Formation</span>
                             </a>
                         </li>
+                        @if(session()->has("codeconcours"))
+                            @if(mb_strtoupper(session("codeconcours")) == "MSTAU")
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle arrow-none" href="{{route("emploi.index")}}" id="topnav-pages" role="button">
+                                        <i class="icon nav-icon" data-eva="archive-outline"></i>
+                                        <span data-key="t-apps">Mon Emploi</span>
+                                    </a>
+                                </li>
+                            @endif
+                        @endif
 
                         @if( session()->has("notes"))
                             @if(session("notes") === 1)

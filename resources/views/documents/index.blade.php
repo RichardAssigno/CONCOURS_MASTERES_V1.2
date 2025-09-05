@@ -71,7 +71,12 @@
 
         <div class="page-content">
             <div class="container-fluid">
-
+                @if(session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
                 <div class="row">
                     <div class="col-md-12">
                         <div id="addproduct-accordion" class="custom-accordion">
@@ -300,8 +305,14 @@
                 );*/
 
                 let removeButton = Dropzone.createElement(
-                    "<button type='button' class='btn btn-danger btn-sm mt-2 dz-remove-btn'>Supprimer</button>"
+                    "<button type='button' class='btn btn-danger btn-sm mt-2 dz-remove-btn' style='cursor: pointer'>Supprimer</button>"
                 );
+
+                // Ajouter un espace et centrer
+                file.previewElement.style.display = "flex";
+                file.previewElement.style.flexDirection = "column";
+                file.previewElement.style.alignItems = "center";
+                file.previewElement.style.gap = "15px"; // <-- espace entre image et bouton
 
                 removeButton.addEventListener("click", function (e) {
                     e.preventDefault();

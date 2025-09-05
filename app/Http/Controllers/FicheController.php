@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Choix;
 use App\Models\Concours;
+use App\Models\Document;
 use App\Models\Formulaire;
 use App\Models\Personne;
+use App\Services\RedirecteurService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Endroid\QrCode\Color\Color;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel;
@@ -19,35 +22,63 @@ use Illuminate\Support\Facades\Hash;
 
 class FicheController extends Controller
 {
+
+    protected $redirecteurService;
+
+    public function __construct(RedirecteurService $redirecteurService)
+    {
+        $this->redirecteurService = $redirecteurService;
+    }
+
     public function telecharger()
     {
+
+        $resultat = $this->redirecteurService->redirecteur();
+
+        if ($resultat['status'] === 'error') {
+            return redirect()->route($resultat['route'])->with('error', $resultat['message']);
+        }
 
         $personnes = Personne::getInfosCandidat(Auth::guard('personne')->id(), session('sessions'));
 
         $infos = Formulaire::getInfosMoyennesCandidat($personnes->idCandidat, session("sessions"));
 
-        // On récupère les types de moyennes distincts
         $typesmoyennes = $infos->pluck('libelleTypemoyenne', 'idTypemoyenne')->unique();
 
-        // On groupe les infos par discipline
         $infos = $infos->groupBy('libelleDiscipline');
 
-        $html = view('fiche.index', [
+        $nbrdoc = 0;
 
+        $documents = Document::getDocumentsCandidat($personnes->idCandidat);
+
+        foreach ($documents as $document) {
+
+            if (!is_null($document->filePath)) {
+
+                $nbrdoc++;
+
+            }
+
+        }
+
+        $pdf = PDF::setOptions([
+            'isRemoteEnabled' => true, // 👈 autorise les images distantes
+        ])->loadView('fiche.index', [
             'candidat' => $personnes,
             'qrcodeData' => self::creationQrCode($personnes),
             'candidatConcours' => Concours::getConcoursCandidat(Auth::guard('personne')->id(), session("sessions")),
-            "listechoix" => Choix::getChoixCandidat(Auth::guard("personne")->id(), session("sessions")),
-            "typesmoyennes" => $typesmoyennes,
-            "infos" => $infos,
-
-        ])->render();
-
-        $pdf = Pdf::loadHTML($html);
+            'listechoix' => Choix::getChoixCandidat(Auth::guard("personne")->id(), session("sessions")),
+            'typesmoyennes' => $typesmoyennes,
+            'infos' => $infos,
+            "documentscandidat" => Document::getDocumentsCandidat($personnes->idCandidat),
+            "nbrdoc" => $nbrdoc,
+        ]);
 
         $pdf->setPaper('A4', 'portrait');
 
-        return $pdf->download('convocation_concours_2025.pdf');
+        $nompdf = $personnes->matricule . "_" . Carbon::now()->timestamp;
+
+        return $pdf->download($nompdf . '.pdf');
     }
 
     public static function creationQrCode($candidat)

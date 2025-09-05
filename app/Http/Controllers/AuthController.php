@@ -335,6 +335,7 @@ class AuthController extends Controller
         session()->put('photo_path', $candidatConcours->photo_path);
         session()->put('photo_type', $candidatConcours->photo_type);
         session()->put('photo_nom', $candidatConcours->photo_nom);
+        session()->put('codeconcours', $candidatConcours->codeConcours);
 
 
     }

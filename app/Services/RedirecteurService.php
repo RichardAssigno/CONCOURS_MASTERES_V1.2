@@ -20,45 +20,58 @@ class RedirecteurService
 
         $v = '1';
 
-        if(is_null($infosCandidats)) return "matricule inconnu";
 
-        if ($this->ajoutinfopersonnelles($infosCandidats)) {
-
-            if ($this->ajoutformation($infosCandidats)) {
-
-                if ($this->notesajouter($infosCandidats)) {
-
-                    if ($this->verifchoixconcours($infosCandidats)) {
-
-                        if ($this->verifdocumentcharger($infosCandidats)) {
-
-                            return 1;
-                        }
-                        else{
-                            return 'L\'ordre des choix n\'a pas été précisé';
-                        }
-
-                    }else{
-
-                        return 'Le candidat n\'a pas choisi de concours';
-
-                    }
-
-                }else{
-
-                    return 'Une ou plusieurs notes n\'ont pas été ajoutées';
-
-                }
-
-            } else {
-
-                return 'Une ou plusieurs informations du lycée n\'ont pas été ajoutées';
-
-            }
-
-        }else {
-            return 'Une ou plusieurs informations personnelles n\'ont pas été ajoutées';
+        if (is_null($infosCandidats)) {
+            return [
+                'status' => 'error',
+                'message' => 'Matricule inconnu',
+                'route' => 'home' // route à rediriger si besoin
+            ];
         }
+
+        if (!$this->ajoutinfopersonnelles($infosCandidats)) {
+            return [
+                'status' => 'error',
+                'message' => 'Une ou plusieurs informations personnelles n\'ont pas été ajoutées',
+                'route' => 'infos.index'
+            ];
+        }
+
+        if (!$this->ajoutformation($infosCandidats)) {
+            return [
+                'status' => 'error',
+                'message' => 'Une ou plusieurs informations de formation n\'ont pas été ajoutées',
+                'route' => 'formation.index'
+            ];
+        }
+
+        if (!$this->notesajouter($infosCandidats)) {
+            return [
+                'status' => 'error',
+                'message' => 'Une ou plusieurs notes n\'ont pas été ajoutées',
+                'route' => 'notes.index'
+            ];
+        }
+
+        if (!$this->verifchoixconcours($infosCandidats)) {
+            return [
+                'status' => 'error',
+                'message' => 'Le candidat n\'a pas choisi de concours',
+                'route' => 'choix.index'
+            ];
+        }
+
+        if (!$this->verifdocumentcharger($infosCandidats)) {
+            return [
+                'status' => 'error',
+                'message' => 'Veillez téléverser tous les documents',
+                'route' => 'documents.index'
+            ];
+        }
+
+        return [
+            'status' => 'ok'
+        ];
 
     }
 
@@ -80,7 +93,7 @@ class RedirecteurService
     {
         if (session()->has('cycles')) {
 
-            if (session('cycles') == 'BAC'){
+            if (mb_strtoupper(session('cycles')) === 'BACHELIER'){
 
                 return $candidat->idLycee != 1 &&
                     $candidat->idDiplome != 1 &&
@@ -136,7 +149,7 @@ class RedirecteurService
     private function verifchoixconcours($infosCandidats)
     {
 
-        $choixcandidat = Choix::where('candidats_id', $infosCandidats->id)->get();
+        $choixcandidat = Choix::getChoixCandidat($infosCandidats->idPersonne, session("sessions"));
 
         return $choixcandidat->isNotEmpty();
 
@@ -145,13 +158,13 @@ class RedirecteurService
     private function verifdocumentcharger($infosCandidats)
     {
 
-        $document =Document::getDocuments($infosCandidats->idCandidat);
+        $document =Document::getDocumentsCandidat($infosCandidats->idCandidat);
 
         if ($document->isNotEmpty()) {
 
             foreach ($document as $value) {
 
-                if (is_null($value->filePath) && $value->requis != 1) {
+                if (is_null($value->filePath) && $value->requis == 1) {
 
                     return false;
 

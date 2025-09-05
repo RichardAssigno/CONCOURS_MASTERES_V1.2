@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChoixController;
 use App\Http\Controllers\DocumentsController;
+use App\Http\Controllers\EmploiController;
 use App\Http\Controllers\FicheController;
 use App\Http\Controllers\FormationsController;
 use App\Http\Controllers\InformationsPersonnellesController;
@@ -38,6 +39,9 @@ Route::middleware('auth:personne')->group(function () {
 
     Route::get('/formation', [FormationsController::class, 'index'])->name('formation.index');
     Route::post('/ajouter-formation', [FormationsController::class, 'ajout'])->name('formation.ajout');
+
+    Route::get('/emploi', [EmploiController::class, 'index'])->name('emploi.index');
+    Route::post('/ajouter-emploi', [EmploiController::class, 'ajout'])->name('emploi.ajout');
 
     Route::get('/choix', [ChoixController::class, 'index'])->name('choix.index');
     Route::post('/ajout-choix', [ChoixController::class, 'ajout'])->name('choix.ajout');

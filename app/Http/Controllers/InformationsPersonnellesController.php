@@ -128,6 +128,8 @@ class InformationsPersonnellesController extends Controller
 
         $anneebac = Carbon::now()->year - $bac->libelle;
 
+        $route = session("notes") === 1 ? "notes.index" : "choix.index";
+
         if ($age <= $session->ageMaxPersonne) {
 
             if ($anneebac <= $session->ageMaxBac) {

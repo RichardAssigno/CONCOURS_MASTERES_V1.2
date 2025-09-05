@@ -35,13 +35,6 @@ class FormationsController extends Controller
 
     public function ajout(Request $request)
     {
-        /*if($request->filled("lycee_autre") || $request->filled("serie_autre")) {
-
-            dd("Je suis dedans");
-
-        }
-
-        dd("Je ne suis pas dedans");*/
 
         $validator = Validator::make($request->all(),[
             'lycee' => "required",
@@ -65,7 +58,19 @@ class FormationsController extends Controller
 
         $candidatConcours = Concours::getConcoursCandidat(Auth::guard('personne')->id(), session("sessions"));
 
-        $route = session("notes") === 1 ? "notes.index" : "choix.index";
+        if(mb_strtoupper($candidatConcours->codeConcours) == "MSTAU"){
+
+            $route = "emploi.index";
+
+        }elseif(session("notes") === 1) {
+
+            $route = "notes.index";
+
+        }else{
+
+            $route =  "choix.index";
+
+        }
 
         $lycee   = $this->createOrUpdateIfFilled($request, 'lycee_autre', Lycee::class);
         $serie   = $this->createOrUpdateIfFilled($request, 'serie_autre', Serie::class);

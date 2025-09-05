@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Candidat;
 use App\Models\Choix;
+use App\Models\Concours;
 use App\Models\Filiere;
 use App\Models\Personne;
 use Illuminate\Http\Request;
@@ -15,10 +16,29 @@ class ChoixController extends Controller
 
     public function index(){
 
+        $candidatConcours = Concours::getConcoursCandidat(Auth::guard('personne')->id(), session("sessions"));
+
+
+
+        if (session("notes") === 1) {
+
+            $routeretour = "notes.index";
+
+        }elseif (mb_strtoupper($candidatConcours->codeConcours) == "MSTAU"){
+
+            $routeretour = "emploi.index";
+
+        }else{
+
+            $routeretour = "formation.index";
+
+        }
+
+
         return view('choix.index', [
             "choix" => Choix::getChoixCandidat(Auth::guard("personne")->id(), session("sessions")),
             "filieres" => Filiere::getConcoursFilieres(session('sessions')),
-            "routeretour" => session("notes") === 1 ? "notes.index" : "formation.index",
+            "routeretour" => $routeretour,
 
         ]);
 
