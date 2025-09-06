@@ -87,7 +87,7 @@
                                                                     <span class="card-radio text-truncate p-3 choix-box">
                                                                         <span class="fs-14 mb-4 d-block">Choix {{$numero++}}</span>
                                                                         <span class="fs-14 mb-2 d-block">
-                                                                            {{$filiere->libelleFiliere}} ({{$filiere->codeFiliere}})
+                                                                            {{mb_strtoupper($filiere->libelleFiliere)}} ({{mb_strtoupper($filiere->codeFiliere)}})
                                                                         </span>
                                                                     </span>
                                                                 </label>

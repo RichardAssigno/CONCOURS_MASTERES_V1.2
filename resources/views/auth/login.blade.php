@@ -112,36 +112,32 @@
                                     <div class="carousel-inner w-75 mx-auto">
                                         <div class="carousel-item active">
                                             <div class="testi-contain text-center">
-                                                <h5 class="font-size-20 mt-4">“I feel confident
-                                                    imposing change
-                                                    on myself”
+                                                <h5 class="font-size-20 mt-4">
+                                                    « L’avenir appartient à ceux qui s’y préparent »
                                                 </h5>
-                                                <p class="font-size-15 text-muted mt-3 mb-0">Vestibulum auctor orci in risus iaculis consequat suscipit felis rutrum aliquet iaculis
-                                                    augue sed tempus In elementum ullamcorper lectus vitae pretium Aenean sed odio dolor Nullam ultricies diam
-                                                    eu ultrices tellus eifend sagittis.</p>
-                                            </div>
-                                        </div>
-
-                                        <div class="carousel-item">
-                                            <div class="testi-contain text-center">
-                                                <h5 class="font-size-20 mt-4">“Our task must be to
-                                                    free widening our circle”</h5>
                                                 <p class="font-size-15 text-muted mt-3 mb-0">
-                                                    Curabitur eget nulla eget augue dignissim condintum Nunc imperdiet ligula porttitor commodo elementum
-                                                    Vivamus justo risus fringilla suscipit faucibus orci luctus
-                                                    ultrices posuere cubilia curae lectus non ultricies cursus.
+                                                    À l’INP-HB, nous croyons que chaque candidat porte en lui une graine d’excellence.
+                                                    Ces concours sont plus qu’une étape : ils sont une porte ouverte vers votre avenir, vos ambitions et vos réussites.
                                                 </p>
                                             </div>
                                         </div>
 
                                         <div class="carousel-item">
                                             <div class="testi-contain text-center">
-                                                <h5 class="font-size-20 mt-4">“I've learned that
-                                                    people will forget what you”</h5>
+                                                <h5 class="font-size-20 mt-4">« L’excellence au cœur de la formation »</h5>
                                                 <p class="font-size-15 text-muted mt-3 mb-0">
-                                                    Pellentesque lacinia scelerisque arcu in aliquam augue molestie rutrum magna Fusce dignissim dolor id auctor accumsan
-                                                    vehicula dolor
-                                                    vivamus feugiat odio erat sed vehicula lorem tempor quis Donec nec scelerisque magna
+                                                    Les concours d’entrée à l’INP-HB incarnent une exigence académique et une ouverture vers l’innovation.
+                                                    Notre mission est de sélectionner et de former les talents de demain, prêts à relever les défis du développement et de la compétitivité mondiale.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div class="carousel-item">
+                                            <div class="testi-contain text-center">
+                                                <h5 class="font-size-20 mt-4">« Préparez-vous, votre futur commence ici »</h5>
+                                                <p class="font-size-15 text-muted mt-3 mb-0">
+                                                    Intégrer l’INP-HB, c’est rejoindre une communauté d’apprenants, de chercheurs et de bâtisseurs.
+                                                    Chaque effort compte, chaque étape vous rapproche de vos rêves. Saisissez cette opportunité et révélez votre potentiel.
                                                 </p>
                                             </div>
                                         </div>

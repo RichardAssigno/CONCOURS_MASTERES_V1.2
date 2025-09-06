@@ -100,6 +100,7 @@ class InformationsPersonnellesController extends Controller
             'nomEtPrenomsDunProche' => "required|string|max:255",
             'telephoneDunProche' => "required|string|max:255",
             'anneebacs_id' => "required|integer",
+            'financement' => session("codeconcours") == "MSTAU"  ? "required|string|max:255" : "nullable",
         ],[
             'nom.required' => 'Le nom est obligatoire.',
             'prenoms.required' => 'Le prénoms est obligatoire.',
@@ -110,6 +111,7 @@ class InformationsPersonnellesController extends Controller
             'nomEtPrenomsDunProche.required' => 'Le Nom de votre Proche est obligatoire.',
             'telephoneDunProche.required' => 'Le Téléphone de votre Proche est obligatoire.',
             'anneebacs_id.required' => 'L\'Année du BAC est obligatoire.',
+            'financement.required' =>session("codeconcours") == "MSTAU"  ? 'La source de financement est obligatoire.' : "",
         ]);
 
         if ($validator->fails()) {
@@ -144,6 +146,7 @@ class InformationsPersonnellesController extends Controller
                     'nomEtPrenomsDunProche'=>mb_strtoupper($data['nomEtPrenomsDunProche']),
                     'telephoneDunProche'=>$data['telephoneDunProche'],
                     'anneeBacs_id'=>$data['anneebacs_id'],
+                    'financements'=> session("codeconcours") == "MSTAU"  ? $data['financement'] : null,
                 ];
 
                 $personne->update($dataPersonnes);

@@ -62,7 +62,7 @@ class FormationsController extends Controller
 
             $route = "emploi.index";
 
-        }elseif(session("notes") === 1) {
+        }elseif(session("notes") === "1") {
 
             $route = "notes.index";
 

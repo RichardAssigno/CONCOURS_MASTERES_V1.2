@@ -9,4 +9,11 @@ class Specialite extends Model
 
     protected $table = "specialites";
 
+    protected $fillable = [
+
+        "libelle",
+        "codeSpecialite",
+
+    ];
+
 }

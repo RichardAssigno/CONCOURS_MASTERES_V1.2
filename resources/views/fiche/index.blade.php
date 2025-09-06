@@ -133,47 +133,55 @@
                 <table class="kv" style="border-collapse: collapse; width: 100%;">
                     <tr>
                         <td class="k">Matricule :</td>
-                        <td class="v"><b>{{$candidat->matricule}}</b></td>
+                        <td class="v"><b>{{$candidat->matricule ?? ""}}</b></td>
                     </tr>
                     <tr>
                         <td class="k">Nom et Prénom(s) :</td>
-                        <td class="v"><b>{{mb_strtoupper($candidat->nom) . " " . mb_strtoupper("$candidat->prenoms")}}</b></td>
+                        <td class="v"><b>{{mb_strtoupper($candidat->nom ?? "") . " " . mb_strtoupper($candidat->prenoms ?? "")}}</b></td>
                     </tr>
                     <tr>
                         <td class="k">Date et lieu de naissance :</td>
-                        <td class="v"><b>{{mb_strtoupper($candidat->genre) == "M" ? "Né " : "Née "}} le {{mb_strtoupper($candidat->dateNaissance)}} à {{mb_strtoupper($candidat->lieuNaissance)}}</b></td>
+                        <td class="v"><b>{{mb_strtoupper($candidat->genre ?? "") == "M" ? "Né " : "Née "}} le {{mb_strtoupper($candidat->dateNaissance ?? "")}} à {{mb_strtoupper($candidat->lieuNaissance ?? "")}}</b></td>
                     </tr>
                     <tr>
                         <td class="k">Genre :</td>
-                        <td class="v"><b>{{mb_strtoupper($candidat->genre) == "M" ? "MASCULIN" : "FEMININ"}}</b></td>
+                        <td class="v"><b>{{mb_strtoupper($candidat->genre ?? "") == "M" ? "MASCULIN" : "FEMININ"}}</b></td>
                     </tr>
                     <tr>
                         <td class="k">Téléphone :</td>
-                        <td class="v"><b>{{$candidat->telephone}}</b></td>
+                        <td class="v"><b>{{$candidat->telephone ?? ""}}</b></td>
                     </tr>
                     <tr>
                         <td class="k">Email :</td>
-                        <td class="v"><b>{{$candidat->email}}</b></td>
+                        <td class="v"><b>{{$candidat->email ?? ""}}</b></td>
                     </tr>
                     <tr>
                         <td class="k">Nom et Prénoms d'un Proche :</td>
-                        <td class="v"><b>{{mb_strtoupper($candidat->nomEtPrenomsDunProche)}}</b></td>
+                        <td class="v"><b>{{mb_strtoupper($candidat->nomEtPrenomsDunProche ?? "")}}</b></td>
                     </tr>
                     <tr>
                         <td class="k">Téléphone d'un Proche :</td>
-                        <td class="v"><b>{{$candidat->telephoneDunProche}}</b></td>
+                        <td class="v"><b>{{$candidat->telephoneDunProche ?? ""}}</b></td>
                     </tr>
                     <tr>
                         <td class="k">Année du BAC :</td>
-                        <td class="v"><b>{{mb_strtoupper($candidat->libelleAnneebac)}}</b></td>
+                        <td class="v"><b>{{mb_strtoupper($candidat->libelleAnneebac ?? "")}}</b></td>
                     </tr>
+                    @if(session()->has("codeconcours"))
+                        @if(mb_strtoupper(session("codeconcours")) == "MSTAU")
+                            <tr>
+                                <td class="k">Source de Financement :</td>
+                                <td class="v"><b>{{mb_strtoupper($candidat->financements ?? "")}}</b></td>
+                            </tr>
+                        @endif
+                    @endif
                 </table>
             </td>
 
             <!-- Colonne de la photo -->
             <td style="vertical-align: top; width: 30%; text-align: center;">
                 <div style="margin-top: 41px;">
-                    <img src="{{ session()->has("photo_path") ? asset('storage/'.session("photo_path")) : "assets/images/avatar.png"}}"
+                    <img src="{{ session()->has("photo_path") ? asset('storage/'.session("photo_path")) : asset("assets/images/avatar.png")}}"
                      alt="Photo du candidat"
                      style="width:100px; height:auto; ">
                 </div>
@@ -252,7 +260,7 @@
 </div>
 
 @if(session()->has("notes"))
-    @if(session("notes") === 1)
+    @if(session("notes") === "1")
         <div style="border: 1px solid #cccccc; margin-bottom: 12px; padding: 5px">
             <div class="section-title">Informations des Notes</div>
             <table class="kvi" style="margin-top: 3px">
@@ -303,7 +311,7 @@
 
 
 <div class="footer">
-    Copyright © 2025 - DIRECTION DES CONCOURS INP-HB. Tous Droits Réservés
+    Copyright © 2025 - BUREAU CENTRAL DES CONCOURS INP-HB. Tous Droits Réservés
 </div>
 
 </body>

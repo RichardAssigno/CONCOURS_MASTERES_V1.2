@@ -15,6 +15,8 @@ class TableaudebordController extends Controller
 
     public function index(){
 
+        //dd(session("notes"));
+
         $personnes = Personne::getInfosCandidat(Auth::guard('personne')->id(), session('sessions'));
 
         $infos = Formulaire::getInfosMoyennesCandidat($personnes->idCandidat, session("sessions"));

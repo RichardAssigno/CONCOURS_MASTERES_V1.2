@@ -225,7 +225,7 @@
                                                 </a>
                                             </li>
                                             @if(session()->has("notes"))
-                                                @if(session("notes") === 1)
+                                                @if(session("notes") === "1")
                                                     <li class="nav-item">
                                                         <a class="nav-link" data-bs-toggle="tab" href="#messages1" role="tab">
                                                             <span class="d-block d-sm-none"><i class="far fa-envelope"></i></span>
@@ -266,6 +266,12 @@
                                                                     <li><p class="text-muted mb-0" style="font-size: 1.2em"><i class="mdi mdi-circle-medium align-middle text-primary me-1"></i><strong>Spécialité : </strong>{{mb_strtoupper($personne->libelleSpecialite ?? "")}}</p></li>
                                                                 @endif
                                                             @endif
+                                                            @if(!is_null($personne->professions) && !is_null($personne->employeurs) && !is_null($personne->experiences))
+                                                                <li><p class="text-muted mb-0" style="font-size: 1.2em"><i class="mdi mdi-circle-medium align-middle text-primary me-1"></i><strong>Profession : </strong>{{mb_strtoupper($personne->professions ?? "")}}</p></li>
+                                                                <li><p class="text-muted mb-0" style="font-size: 1.2em"><i class="mdi mdi-circle-medium align-middle text-primary me-1"></i><strong>Employeur : </strong>{{$personne->employeurs ?? ""}}</p></li>
+                                                                <li><p class="text-muted mb-0" style="font-size: 1.2em"><i class="mdi mdi-circle-medium align-middle text-primary me-1"></i><strong>Expériences : </strong>{{mb_strtoupper($personne->experiences ?? "")}}</p></li>
+                                                                <li><p class="text-muted mb-0" style="font-size: 1.2em"><i class="mdi mdi-circle-medium align-middle text-primary me-1"></i><strong>Source de Financement : </strong>{{mb_strtoupper($personne->financements ?? "")}}</p></li>
+                                                            @endif
 
                                                         </ul>
                                                     </div>
@@ -286,7 +292,7 @@
                                             </div>
 
                                             @if(session()->has("notes"))
-                                                @if(session("notes") === 1)
+                                                @if(session("notes") === "1")
                                                     <div class="tab-pane" id="messages1" role="tabpanel">
                                                 <div class="p-4 border-top">
                                                     <div class="row">

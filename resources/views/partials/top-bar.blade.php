@@ -107,7 +107,7 @@
                         @endif
 
                         @if( session()->has("notes"))
-                            @if(session("notes") === 1)
+                            @if(session("notes") === "1")
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle arrow-none" href="{{route("notes.index")}}" id="topnav-note" role="button">
                                         <i class="icon nav-icon" data-eva="file-text-outline"></i>
