@@ -141,7 +141,7 @@
                     </tr>
                     <tr>
                         <td class="k">Date et lieu de naissance :</td>
-                        <td class="v"><b>{{mb_strtoupper($candidat->genre ?? "") == "M" ? "Né " : "Née "}} le {{mb_strtoupper($candidat->dateNaissance ?? "")}} à {{mb_strtoupper($candidat->lieuNaissance ?? "")}}</b></td>
+                        <td class="v"><b>{{mb_strtoupper($candidat->genre ?? "") == "M" ? "Né " : "Née "}} le {{mb_strtoupper(\Carbon\Carbon::parse($candidat->dateNaissance)->format('d/m/Y') ?? "")}} à {{mb_strtoupper($candidat->lieuNaissance ?? "")}}</b></td>
                     </tr>
                     <tr>
                         <td class="k">Genre :</td>
