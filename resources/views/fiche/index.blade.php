@@ -196,34 +196,43 @@
     <table class="kv">
     <tr>
         <td class="k">Lycée :</td>
-        <td class="v"><b>{{mb_strtoupper($candidat->libelleLycee)}}</b></td>
+        <td class="v"><b>{{mb_strtoupper($candidat->libelleLycee ?? "")}}</b></td>
     </tr>
     <tr>
         <td class="k">Série :</td>
-        <td class="v"><b>{{mb_strtoupper($candidat->libelleSerie)}}</b></td>
+        <td class="v"><b>{{mb_strtoupper($candidat->libelleSerie ?? "")}}</b></td>
     </tr>
     <tr>
         <td class="k">Diplôme :</td>
-        <td class="v"><b>{{mb_strtoupper($candidat->libelleDiplome)}}</b></td>
+        <td class="v"><b>{{mb_strtoupper($candidat->libelleDiplome ?? "")}}</b></td>
     </tr>
     @if(session()->has("cycles"))
-        @if(mb_strtoupper(session("cycles")) == "BAC")
+        @if(mb_strtoupper(session("cycles")) != "BACHELIER")
             <tr>
                 <td class="k">Spécialité :</td>
-                <td class="v"><b>{{mb_strtoupper($candidat->libelleSpecialite)}}</b></td>
+                <td class="v"><b>{{mb_strtoupper($candidat->libelleSpecialite ?? "")}}</b></td>
             </tr>
             <tr>
-                <td class="k">Spécialité :</td>
-                <td class="v"><b>{{mb_strtoupper($candidat->libelleEtablissement)}}</b></td>
+                <td class="k">Etablissement Superieur d'Origine :</td>
+                <td class="v"><b>{{mb_strtoupper($candidat->libelleEtablissement ?? "")}}</b></td>
             </tr>
+            @if(session()->has("codeconcours"))
+                @if(mb_strtoupper(session("codeconcours")) == "MSTAU")
+                    <tr>
+                        <td class="k">Niveau d'Etude :</td>
+                        <td class="v"><b>{{mb_strtoupper($candidat->niveauetudes ?? "")}}</b></td>
+                    </tr>
+                @endif
+            @endif
         @endif
     @endif
 </table>
 </div>
 
-@if(!is_null($candidat->professions) && !is_null($candidat->employeurs) && !is_null($candidat->experiences))
+@if(session()->has("codeconcours"))
+    @if(mb_strtoupper(session("codeconcours")) == "MSTAU")
 
-    <div style="border: 1px solid #cccccc; margin-bottom: 12px; padding: 5px">
+        <div style="border: 1px solid #cccccc; margin-bottom: 12px; padding: 5px">
         <div class="section-title">Informations sur l'Emploi</div>
         <table class="kv">
             <tr>
@@ -241,6 +250,8 @@
 
         </table>
     </div>
+
+    @endif
 
 @endif
 

@@ -152,6 +152,23 @@
                                             </div>
                                                 @endif
                                             @endif
+                                            @if(session()->has("codeconcours"))
+                                                @if(mb_strtoupper(session("codeconcours")) == "MSTAU")
+                                                    <div class="row d-flex justify-center">
+                                                        <div class="mb-3">
+                                                            <label class="form-label" for="telephoneDunProche">Niveau d'etude</label>
+                                                            <select class="form-select select2" name="niveauetudes"
+                                                                    id="niveauetudes">
+                                                                <option value=""> Sélectionnez un niveau d'Etude</option>
+                                                                <option {{($personnes?->niveauetudes ?? '') == mb_strtoupper("BAC+4") ? "selected": ""}}  value="{{mb_strtoupper("BAC+4")}}">{{mb_strtoupper("BAC+4")}}</option>
+                                                                <option {{($personnes?->niveauetudes ?? '') == mb_strtoupper("BAC+5") ? "selected": ""}} value="{{mb_strtoupper("BAC+5")}}">
+                                                                    {{mb_strtoupper("BAC+5")}}</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                @endif
+                                            @endif
                                         </div>
                                     </div>
                                 </div>

@@ -210,7 +210,6 @@
                                                             <select class="form-select select2" name="financement"
                                                                     id="financement">
                                                                 <option value=""> Sélectionnez une source de financement</option>
-                                                                <option {{($personnes?->financements ?? '') == mb_strtoupper("BOURSE") ? "selected": ""}}  value="{{mb_strtoupper("BOURSE")}}">{{mb_strtoupper("BOURSE")}}</option>
                                                                 <option {{($personnes?->financements ?? '') == mb_strtoupper("Financement entreprise") ? "selected": ""}} value="{{mb_strtoupper("Financement entreprise")}}">
                                                                     {{mb_strtoupper("Financement entreprise")}}</option>
                                                                 <option {{($personnes?->financements ?? '') == mb_strtoupper("Financement individuel") ? "selected": ""}} value="{{mb_strtoupper("Financement individuel")}}">

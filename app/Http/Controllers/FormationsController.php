@@ -42,10 +42,12 @@ class FormationsController extends Controller
             'diplome' => "required",
             'etablissementsuperieur' => "nullable",
             'specialite' => "nullable",
+            'niveauetudes' => session("codeconcours") == "MSTAU"  ? "required|string|max:255" : "nullable",
         ],[
             'lycee.required' => 'Le lycée est obligatoire.',
             'serie.required' => 'La série est obligatoire.',
             'diplome.required' => 'Le diplôme est obligatoire.',
+            'niveauetudes.required' =>session("codeconcours") == "MSTAU"  ? 'Veillez selectionner un niveau d\'etude.' : "",
         ]);
 
         if ($validator->fails()) {
@@ -82,6 +84,7 @@ class FormationsController extends Controller
                 'series_id'=>$serie ?? $data['serie'],
                 'diplomes_id'=>$diplome ?? $data['diplome'],
                 'lycees_id'=>$lycee ?? $data['lycee'],
+                'niveauetudes'=> session("codeconcours") == "MSTAU"  ? $data['niveauetudes'] : null,
             ];
 
             $personne->update($dataPersonnes);
@@ -104,6 +107,7 @@ class FormationsController extends Controller
                 'etablissements_id'=>$etablissement ?? $data['etablissementsuperieur'],
                 'specialites_id'=>$specialite ?? $data['specialite'],
                 'lycees_id'=>$lycee ?? $data['lycee'],
+                'niveauetudes'=> session("codeconcours") == "MSTAU"  ? $data['niveauetudes'] : null,
             ];
 
             $personne->update($dataPersonnes);

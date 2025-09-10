@@ -112,6 +112,7 @@ class InformationsPersonnellesController extends Controller
             'telephoneDunProche.required' => 'Le Téléphone de votre Proche est obligatoire.',
             'anneebacs_id.required' => 'L\'Année du BAC est obligatoire.',
             'financement.required' =>session("codeconcours") == "MSTAU"  ? 'La source de financement est obligatoire.' : "",
+            'niveauetudes.required' =>session("codeconcours") == "MSTAU"  ? 'Veillez selectionner un niveau d\'etude.' : "",
         ]);
 
         if ($validator->fails()) {

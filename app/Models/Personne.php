@@ -37,6 +37,7 @@ class Personne extends Authenticatable
         'employeurs',
         'experiences',
         'financements',
+        'niveauetudes',
     ];
 
     protected $hidden = [
@@ -65,6 +66,7 @@ class Personne extends Authenticatable
             'p.employeurs',
             'p.experiences',
             'p.financements',
+            'p.niveauetudes',
             'l.id as idLycee',
             'l.libelle as libelleLycee',
             'e.id as idEtablissement',

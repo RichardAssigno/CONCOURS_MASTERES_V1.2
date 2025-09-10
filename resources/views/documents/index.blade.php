@@ -34,7 +34,7 @@
         }
 
         .dz-remove-btn {
-            z-index: 100000000;
+
             margin-top: 50px;
         }
 
@@ -177,6 +177,9 @@
     <!-- end main content-->
 
     <!-- end main content-->
+
+
+    @include("partials.footer")
 
 </div>
 <!-- END layout-wrapper -->
