@@ -21,6 +21,7 @@ class DocumentsController extends Controller
 
             "documents" => Document::getDocumentsCandidat($candidat->id),
             "routeretour" => session("nombrefiliere") > 1 ? "choix.ordrechoix" : "choix.index",
+            "titre" => "Documents du candidat",
 
         ]);
 

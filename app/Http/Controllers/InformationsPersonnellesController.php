@@ -25,7 +25,7 @@ class InformationsPersonnellesController extends Controller
 
             "anneebacs" => $anneebacs,
             "personnes"  => $personne,
-            "titre"  => "Informations Personnelles",
+            "titre"  => "Informations Personnelles du Candidat",
 
         ]);
 

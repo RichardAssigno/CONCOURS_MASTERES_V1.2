@@ -29,6 +29,7 @@ class FormationsController extends Controller
             "specialites" => Specialite::query()->orderBy("libelle", "asc")->get(),
             "lycees" => Lycee::query()->orderBy("libelle", "asc")->get(),
             "etablissements" => Etablissement::query()->orderBy("libelle", "asc")->get(),
+            "titre" => "Formation du candidat",
         ]);
 
     }

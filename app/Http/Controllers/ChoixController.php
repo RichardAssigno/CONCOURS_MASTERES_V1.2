@@ -39,6 +39,7 @@ class ChoixController extends Controller
             "choix" => Choix::getChoixCandidat(Auth::guard("personne")->id(), session("sessions")),
             "filieres" => Filiere::getConcoursFilieres(session('sessions')),
             "routeretour" => $routeretour,
+            "titre" => "Choix de concours",
 
         ]);
 
@@ -99,6 +100,7 @@ class ChoixController extends Controller
         return view('choix.ordrechoix', [
 
             "choix" => Choix::getChoixCandidat(Auth::guard("personne")->id(), session("sessions")),
+            "titre" => "Ordonner le choix de concours",
 
         ]);
 
