@@ -11,10 +11,18 @@
 
     <style>
 
-        .choix-box {
-            white-space: normal !important;  /* Autorise le retour à la ligne */
-            word-wrap: break-word;           /* Coupe le mot si trop long */
+         .footer-content {
+             background-color: #fff; /* couleur claire comme dans ta capture */
+             padding: 15px 0;
+             margin-top: 20px;
+             border-top: 1px solid #e0e0e0;
+         }
+
+        .footer-content .col-sm-12 {
+            font-size: 14px;
+            color: grey; /* gris doux */
         }
+
 
     </style>
 
@@ -130,6 +138,7 @@
     <!-- end main content-->
 
     <!-- end main content-->
+    @include("partials.footer")
 
 </div>
 <!-- END layout-wrapper -->

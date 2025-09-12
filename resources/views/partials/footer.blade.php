@@ -1,8 +1,8 @@
-<footer class="">
+<footer class="footer-content">
     <div class="container-fluid">
         <div class="row">
-            <div class="col-sm-12">
-                <script>document.write(new Date().getFullYear())</script> &copy; Borex. Design & Develop by Themesbrand
+            <div class="col-sm-12 text-center">
+                <script>document.write(new Date().getFullYear())</script> &copy; INP-HB. Tous droit réservés.
             </div>
         </div>
     </div>
