@@ -197,8 +197,9 @@
                                                         <label for="genre" class="form-label">Genre</label>
                                                         <select class="form-select select2" name="genre"
                                                                 id="genre">
-                                                            <option {{($personnes?->genre ?? '') == "Masculin" ? "selected": ""}}  value="M">Masculin</option>
-                                                            <option {{($personnes?->genre ?? '') == "Féminin" ? "selected": ""}} value="F">Féminin</option>
+                                                            <option value=""> Sélectionnez votre genre</option>
+                                                            <option {{($personnes?->genre ?? '') == "M" ? "selected": ""}}  value="M">Masculin</option>
+                                                            <option {{($personnes?->genre ?? '') == "F" ? "selected": ""}} value="F">Féminin</option>
                                                         </select>
                                                     </div>
                                                 </div>
