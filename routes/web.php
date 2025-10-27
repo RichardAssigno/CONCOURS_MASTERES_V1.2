@@ -57,5 +57,6 @@ Route::middleware('auth:personne')->group(function () {
 
     Route::get('/impression-fiche-de-preinscription', [FicheController::class, 'telecharger'])->name('fiche.telecharger');
 
-
 });
+
+Route::get('/documents/candidat-id', [DocumentsController::class, "telechargerdossier"])->name('document.download');

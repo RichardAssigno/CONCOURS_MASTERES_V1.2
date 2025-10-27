@@ -22,7 +22,7 @@ class MatriculeService
 
             $infoSession->update($data);
 
-            return $infoSessionConcours->baseMatricule . date("y") . str_pad(dechex($infoSession->compteurMatricule), 4, "0", STR_PAD_LEFT);
+            return mb_strtoupper($infoSessionConcours->baseMatricule . date("y") . str_pad(dechex($infoSession->compteurMatricule), 4, "0", STR_PAD_LEFT));
         }
 
     }

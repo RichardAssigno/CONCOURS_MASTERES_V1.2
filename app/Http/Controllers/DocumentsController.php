@@ -8,6 +8,8 @@ use App\Models\Personne;
 use Dotenv\Util\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
+use ZipArchive;
 
 
 class DocumentsController extends Controller
@@ -94,6 +96,62 @@ class DocumentsController extends Controller
     }
 
 
+    public function telechargerdossier(Request $request)
+    {
+        $candidat_id = $request->query('candidat_id');
 
+        // Récupération du fichier (par exemple le premier document du candidat)
+        $fichier = Document::getDocumentsPourTelecharger($candidat_id);
+
+        // Chemin trouvé dans la BD (ex: "documents/MSTAU250004_NGUESSAN_KOUAME_LEONARD/monfichier.pdf")
+        $pattern = '#(?:public/)?documents/([A-Za-z0-9_\-]*)/([^/]+\.pdf)$#';
+
+
+        $nomDossier = null;
+        $matricule = null;
+
+        if (preg_match($pattern, $fichier->filePath, $matches)) {
+            // $matches[1] = "MSTAU250004_NGUESSAN_KOUAME_LEONARD"
+            // $matches[2] = "nomdufichier.pdf"
+            $nomDossier = $matches[1];
+
+        } else {
+            return redirect()->back()->with("echec", "Le format du fichier n'est pas reconnu.");
+        }
+
+        // Le dossier à zipper (dans public/documents)
+        $dossierPath = public_path("storage/documents/" . $nomDossier);
+
+        if (!File::exists($dossierPath)) {
+            return redirect()->back()->with("echec", "Le dossier du candidat n'existe pas.");
+        }
+
+        // Création d’un dossier temporaire pour le zip
+        $tmpDir = storage_path('app/public/tmp');
+        if (!File::exists($tmpDir)) {
+            File::makeDirectory($tmpDir, 0755, true);
+        }
+
+        // Nom du fichier ZIP
+        $zipFileName = $nomDossier . '.zip';
+        $zipFullPath = $tmpDir . '/' . $zipFileName;
+
+        $zip = new ZipArchive;
+
+        if ($zip->open($zipFullPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
+            $files = File::files($dossierPath);
+
+            foreach ($files as $file) {
+                $zip->addFile($file, basename($file));
+            }
+
+            $zip->close();
+
+            // Téléchargement et suppression du zip après envoi
+            return response()->download($zipFullPath)->deleteFileAfterSend(true);
+        }
+
+        return redirect()->back()->with("echec", "Échec de la création du fichier ZIP.");
+    }
 
 }

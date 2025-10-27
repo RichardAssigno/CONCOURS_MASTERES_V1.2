@@ -198,8 +198,8 @@
                                                         <select class="form-select select2" name="genre"
                                                                 id="genre">
                                                             <option value=""> Sélectionnez votre genre</option>
-                                                            <option {{($personnes?->genre ?? '') == "M" ? "selected": ""}}  value="M">Masculin</option>
-                                                            <option {{($personnes?->genre ?? '') == "F" ? "selected": ""}} value="F">Féminin</option>
+                                                            <option {{($personnes?->genre ?? '') == "M" ? "selected": ""}}  value="M">{{mb_strtoupper("Masculin")}}</option>
+                                                            <option {{($personnes?->genre ?? '') == "F" ? "selected": ""}} value="F">{{mb_strtoupper("Féminin")}}</option>
                                                         </select>
                                                     </div>
                                                 </div>

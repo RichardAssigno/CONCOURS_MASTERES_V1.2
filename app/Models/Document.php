@@ -58,6 +58,13 @@ class Document extends Model
             ->get();
     }
 
+    public static function getDocumentsPourTelecharger($idCandidat){
+        return static::query()->select('d.*')
+            ->from('documents as d')
+            ->where('d.candidats_id', '=', $idCandidat)
+            ->first();
+    }
+
 
 
 }
