@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Candidat;
 use App\Models\Document;
 use App\Models\Personne;
+use App\Services\RedirecteurService;
 use Dotenv\Util\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,9 +22,9 @@ class DocumentsController extends Controller
 
         return view('documents.index', [
 
-            "documents" => Document::getDocumentsCandidat($candidat->id),
+            "documents" => Document::getListeDocuments($candidat->id),
             "routeretour" => session("nombrefiliere") > 1 ? "choix.ordrechoix" : "choix.index",
-            "titre" => "Documents du candidat",
+            "titre" => "Documents",
 
         ]);
 
@@ -90,68 +91,57 @@ class DocumentsController extends Controller
         }
 
         // Supprimer l'enregistrement du document dans la base
-        $document->update(['filePath'  => null,]);
+       /* $document->update(['filePath'  => null,]);*/
 
         return response()->json(['success' => true]);
     }
 
 
-    public function telechargerdossier(Request $request)
+    public function telechargerdossier($candidat_id)
     {
-        $candidat_id = $request->query('candidat_id');
+        /*$candidat_id = $request->query('candidat_id');*/
 
-        // Récupération du fichier (par exemple le premier document du candidat)
         $fichier = Document::getDocumentsPourTelecharger($candidat_id);
 
-        // Chemin trouvé dans la BD (ex: "documents/MSTAU250004_NGUESSAN_KOUAME_LEONARD/monfichier.pdf")
-        $pattern = '#(?:public/)?documents/([A-Za-z0-9_\-]*)/([^/]+\.pdf)$#';
-
-
-        $nomDossier = null;
-        $matricule = null;
-
-        if (preg_match($pattern, $fichier->filePath, $matches)) {
-            // $matches[1] = "MSTAU250004_NGUESSAN_KOUAME_LEONARD"
-            // $matches[2] = "nomdufichier.pdf"
-            $nomDossier = $matches[1];
-
-        } else {
-            return redirect()->back()->with("echec", "Le format du fichier n'est pas reconnu.");
+        $pattern = '#(?:public/)?([^/]+)/+([^/]+\.pdf)$#';
+        if (!preg_match($pattern, $fichier->filePath, $matches)) {
+            return response()->json(['success' => false, 'message' => 'Format de fichier non reconnu'], 422);
         }
 
-        // Le dossier à zipper (dans public/documents)
+        $nomDossier = $matches[1];
         $dossierPath = public_path("storage/documents/" . $nomDossier);
 
         if (!File::exists($dossierPath)) {
-            return redirect()->back()->with("echec", "Le dossier du candidat n'existe pas.");
+            return response()->json(['success' => false, 'message' => 'Dossier introuvable'], 404);
         }
 
-        // Création d’un dossier temporaire pour le zip
+        // Crée le ZIP
+        $zip = new \ZipArchive;
         $tmpDir = storage_path('app/public/tmp');
-        if (!File::exists($tmpDir)) {
-            File::makeDirectory($tmpDir, 0755, true);
-        }
+        if (!File::exists($tmpDir)) File::makeDirectory($tmpDir, 0755, true);
 
-        // Nom du fichier ZIP
         $zipFileName = $nomDossier . '.zip';
         $zipFullPath = $tmpDir . '/' . $zipFileName;
 
-        $zip = new ZipArchive;
-
-        if ($zip->open($zipFullPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
-            $files = File::files($dossierPath);
-
-            foreach ($files as $file) {
-                $zip->addFile($file, basename($file));
-            }
-
-            $zip->close();
-
-            // Téléchargement et suppression du zip après envoi
-            return response()->download($zipFullPath)->deleteFileAfterSend(true);
+        if ($zip->open($zipFullPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
+            return response()->json(['success' => false, 'message' => 'Erreur création ZIP'], 500);
         }
 
-        return redirect()->back()->with("echec", "Échec de la création du fichier ZIP.");
+        $files = File::files($dossierPath);
+        foreach ($files as $file) $zip->addFile($file, basename($file));
+        $zip->close();
+
+        // Lire le contenu du ZIP et le renvoyer en réponse binaire
+        $content = File::get($zipFullPath);
+
+        return response($content, 200, [
+            'Content-Type' => 'application/zip',
+            'Content-Disposition' => "attachment; filename=\"$zipFileName\"",
+            'Access-Control-Allow-Origin' => 'https://admin.concours.inphb.app',
+            'Access-Control-Allow-Methods' => 'GET, OPTIONS',
+            'Access-Control-Allow-Headers' => 'Content-Type, X-Requested-With, Authorization, X-CSRF-TOKEN',
+            'Access-Control-Allow-Credentials' => 'true'
+        ]);
     }
 
 }

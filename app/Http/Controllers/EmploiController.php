@@ -15,7 +15,7 @@ class EmploiController extends Controller
         return view('emplois.index', [
 
             "personnes" => Personne::getInfosCandidat(Auth::guard("personne")->id(), session("sessions")),
-            "titre" => "Emploi du candidat",
+            "titre" => "Emploi",
 
         ]);
 

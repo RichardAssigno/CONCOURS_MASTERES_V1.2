@@ -17,6 +17,8 @@ class InformationsPersonnellesController extends Controller
 
     public function index(){
 
+        //dd(session("sessions"), session('candidatConcours'), session('notes'), session('cycles'), session('codeconcours') );
+
         $anneebacs = AnneeBac::query()->orderBy("id", "desc")->get();
 
         $personne = Personne::getInfosCandidat(Auth::guard("personne")->id(), session("sessions"));

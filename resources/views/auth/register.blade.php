@@ -46,7 +46,7 @@
 
                                                                     @foreach($concoursouvert as $concours)
 
-                                                                        <option value="{{$concours->idSession}}">{{$concours->libelleConcours.' Session '.$concours->libelleAnnee}}</option>
+                                                                        <option value="{{$concours->idSession}}">{{$concours->libelleConcours. " - " . $concours->codeConcours . ' Session '.$concours->libelleAnnee}}</option>
 
                                                                     @endforeach
 
@@ -95,7 +95,7 @@
 
 
                                                     <div class="mt-4 pt-3 text-center">
-                                                        <p class="text-muted mb-0">Vous avez déjà un compte ? <a href="{{route("login.index")}}" class="text-primary fw-semibold"> Se Connecter </a> </p>
+                                                        <p class="text-muted mb-0">Vous avez déjà un compte ? <a href="{{route("login")}}" class="text-primary fw-semibold"> Se Connecter </a> </p>
                                                     </div>
                                                 </div>
                                                 <div class="mt-4 text-center">
@@ -216,13 +216,17 @@
 
             e.preventDefault();
 
+            showLoader("Inscription en cours....!");
+
             let formData = $(this).serialize(); // Récupère tous les champs y compris le _token
 
             $.ajax({
                 url: "{{ route('ajoutinscription') }}",
                 method: "POST",
-                data: formData, // Envoie le formulaire complet
+                data: formData,
                 success: function(response) {
+
+                    hideLoader("");
 
                     Toast.fire({
                         title: response.success || 'Connexion réussie',
@@ -235,36 +239,38 @@
                     setTimeout(function () {
                         window.location.href = "{{ route('home') }}";
                     }, 1500);
-
                 },
+
                 error: function(xhr) {
+
+                    hideLoader("");
+
                     let message = "Une erreur est survenue";
 
-                    if (xhr.responseJSON && xhr.responseJSON.error) {
-                        let errors = xhr.responseJSON.error;
+                    // 👉 Laravel renvoie les erreurs dans "errors"
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
 
-                        if (Array.isArray(errors)) {
-                            // Plusieurs erreurs
-                            message = errors.join("<br>");
-                        } else if (typeof errors === "object") {
-                            // Objet avec plusieurs champs => on récupère chaque valeur
-                            message = Object.values(errors).flat().join("<br>");
-                        } else {
-                            // C'est juste une chaîne simple
-                            message = errors;
-                        }
+                        let errors = xhr.responseJSON.errors;
+
+                        // Convertir l'objet d'erreurs en texte lisible
+                        message = Object.values(errors)
+                            .flat()
+                            .join("<br>");
+                    }
+
+                    // 👉 Certains cas renvoient juste un message
+                    else if (xhr.responseJSON && xhr.responseJSON.message) {
+                        message = xhr.responseJSON.message;
                     }
 
                     Swal.fire({
                         icon: 'error',
                         title: 'Erreur de validation',
-                        html: message // utiliser html pour garder les <br>
+                        html: message // garder les <br>
                     });
                 }
-
-
-
             });
+
         });
     })
 

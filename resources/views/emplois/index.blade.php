@@ -181,6 +181,8 @@
 
         e.preventDefault();
 
+        showLoader("Chargement en cours...")
+
         let url = "{{ route('emploi.ajout') }}";
 
         let formData = $(this).serialize();
@@ -190,6 +192,7 @@
             type: "POST",
             data: formData,
             success: function (response) {
+                hideLoader()
                 if (response.success) {
                     Toast.fire({
                         title: response.success, // 🔹 car c'est ici que le message est stocké
@@ -203,6 +206,7 @@
                         window.location.href = response.redirect;
                     }, 1500);
                 } else {
+                    hideLoader()
                     Swal.fire({
                         title: "Echec",
                         text: response.message,
@@ -213,6 +217,7 @@
 
             },
             error: function (xhr) {
+                hideLoader()
                 if (xhr.status === 422) {
                     let errorHtml = "Une erreur est survenue.";
 

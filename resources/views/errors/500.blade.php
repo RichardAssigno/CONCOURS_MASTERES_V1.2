@@ -1,14 +1,11 @@
-<!doctype html>
-<html lang="fr">
-
-<head>
-
-    @include('partials.meta',['title'=>'Tableau de Bord'])
-
-    @include("partials.css")
-
-</head>
+@extends('layouts.master-without-nav')
+@section('title')
+    @lang('translation.Error_500')
+@endsection
+@section('body')
 <body>
+@endsection
+@section('content')
     <div class="my-5 pt-5">
         <div class="container">
             <div class="row">
@@ -26,5 +23,4 @@
         </div>
         <!-- end container -->
     </div>
-</body>
-</html>
+@endsection

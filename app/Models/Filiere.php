@@ -23,13 +23,11 @@ class Filiere extends Model
                 'fi.codeFiliere'
             )
             ->from('session as s')
-            ->join('annees as a', function ($join) {
-                $join->on('a.id', '=', 's.annees_id')
-                    ->where('a.statut', '=', 1);
-            })
+            ->join('annees as a','a.id','=','s.annees_id')
             ->join('concours as co', 'co.id', '=', 's.concours_id')
             ->join('filieres as fi', 'fi.concours_id', '=', 'co.id')
             ->where('s.id', '=', $idSession)
+            ->where('s.statut', '=', 1)
             ->get();
     }
 

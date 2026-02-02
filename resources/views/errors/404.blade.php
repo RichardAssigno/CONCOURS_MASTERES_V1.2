@@ -1,16 +1,14 @@
+@extends('layouts.master-without-nav')
 
+@section('title')
+    Erreur 404 | INP-HB
+@endsection
 
-<!doctype html>
-<html lang="fr">
+@section('body')
 
-<head>
-
-    @include('partials.meta',['title'=>'Tableau de Bord'])
-
-    @include("partials.css")
-
-</head>
 <body>
+@endsection
+@section('content')
     <div class="my-5 pt-5">
         <div class="container">
             <div class="row">
@@ -29,6 +27,5 @@
         <!-- end container -->
     </div>
     <!-- end content -->
-</body>
-</html>
+@endsection
 

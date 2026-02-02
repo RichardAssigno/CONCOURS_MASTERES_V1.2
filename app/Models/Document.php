@@ -27,12 +27,35 @@ class Document extends Model
             ->join('candidats as c', 'c.id', '=', 'd.candidats_id')
             ->join('session as s', 's.id', '=', 'c.sessions_id')
             ->where('c.id', $candidatId)
+            ->where('d.filePath', "!=", null)
             ->groupBy('dd.id')
             ->select(
                 'dd.id as idDocumentdossier',
                 'dd.libelle as libelleDocumentdossier',
                 'dd.code as codeDocumentdossier',
-                'dd.requis',
+                'dc.requis',
+                'dc.id as idDossiercandidature',
+                'c.id as idCandidat',
+                'd.id as idDocument',
+                'd.filePath'
+            )
+            ->get();
+    }
+
+    public static function getListeDocuments($candidatId)
+    {
+        return DB::table('documentsdossiers as dd')
+            ->join('dossierscandidatures as dc', 'dc.documentsdossiers_id', '=', 'dd.id')
+            ->join('documents as d', 'd.dossiersCandidature_id', '=', 'dc.id')
+            ->join('candidats as c', 'c.id', '=', 'd.candidats_id')
+            ->join('session as s', 's.id', '=', 'c.sessions_id')
+            ->where('c.id', $candidatId)
+            ->groupBy('dd.id')
+            ->select(
+                'dd.id as idDocumentdossier',
+                'dd.libelle as libelleDocumentdossier',
+                'dd.code as codeDocumentdossier',
+                'dc.requis',
                 'dc.id as idDossiercandidature',
                 'c.id as idCandidat',
                 'd.id as idDocument',
@@ -52,7 +75,7 @@ class Document extends Model
                 'dd.id as idDocumentdossier',
                 'dd.libelle as libelleDocumentdossier',
                 'dd.code as codeDocumentdossier',
-                'dd.requis',
+                'dc.requis',
                 'dc.id as idDossiercandidature',
             )
             ->get();

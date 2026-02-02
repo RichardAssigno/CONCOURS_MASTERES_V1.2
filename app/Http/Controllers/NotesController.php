@@ -29,7 +29,7 @@ class NotesController extends Controller
 
             "infos" => $infos,
             "typesmoyennes" => $typesmoyennes,
-            "titre" => "Notes du Candidat",
+            "titre" => "Notes",
 
         ]);
 

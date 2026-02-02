@@ -29,7 +29,7 @@ class FormationsController extends Controller
             "specialites" => Specialite::query()->orderBy("libelle", "asc")->get(),
             "lycees" => Lycee::query()->orderBy("libelle", "asc")->get(),
             "etablissements" => Etablissement::query()->orderBy("libelle", "asc")->get(),
-            "titre" => "Formation du candidat",
+            "titre" => "Formation",
         ]);
 
     }
@@ -65,7 +65,7 @@ class FormationsController extends Controller
 
             $route = "emploi.index";
 
-        }elseif(session("notes") === "1") {
+        }elseif(session("notes") === 1) {
 
             $route = "notes.index";
 

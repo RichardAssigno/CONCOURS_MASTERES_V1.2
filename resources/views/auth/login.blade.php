@@ -6,6 +6,7 @@
     @include('partials.meta',['title'=>'Connexion'])
 
     @include("partials.css")
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
 </head>
 
@@ -33,6 +34,17 @@
                                                         <h5 class="mb-0">Bienvenue !</h5>
                                                         <p class="text-muted mt-2">Connectez vous pour continuer votre inscription.</p>
                                                     </div>
+                                                    @if (session('echec'))
+                                                        <div class="alert alert-danger">
+                                                            {{ session('echec') }}
+                                                        </div>
+                                                    @elseif(session('succes'))
+                                                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                                            {{ session('succes') }}
+                                                            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                                                    aria-label="Close"></button>
+                                                        </div>
+                                                    @endif
                                                     <form class="mt-4 pt-2" method="POST" id="connexion">
                                                         @csrf
                                                         <div class="form-floating form-floating-custom mb-4">
@@ -158,48 +170,44 @@
 </div>
 
 <!-- Modal de sélection du concours -->
-<div class="modal fade" id="choixConcoursModal" tabindex="-1" aria-labelledby="choixConcoursModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <form id="form-final-connexion">
-            @csrf
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">Sélection du concours</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" name="email" id="hidden-email">
-                    <input type="hidden" name="password" id="hidden-password">
+<!-- end row -->
+<div id="choixConcoursModal" class="modal fade" tabindex="-1" aria-labelledby="choixConcoursModalLabel" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalFullscreenLabel">Les concours Ouverts</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
 
-                    <div class="mb-3">
-                        <label for="concours-select" class="form-label">Choisissez le concours dont vous voulez vous connecter</label>
-                        <select class="form-control select2" name="sessions_id" id="concours-select" required>
-                            <option value="">Sélectionnez un concours</option>
-                        </select>
+                    <div class="row mb-3">
+
+                        <div class="d-flex center">
+                            <input id="concours-filter" type="text" class="form-control" placeholder="Filtrer ici...">
+                        </div>
+
+                    </div>
+
+                    <div class="row" id="listeConcours">
+
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-success w-100">Connexion</button>
-                </div>
             </div>
-        </form>
-    </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary waves-effect" data-bs-dismiss="modal">Fermez</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
 </div>
 
 <!-- JAVASCRIPT -->
 @include("partials.js")
 
-
+<script src="{{asset('assets/js/filterconcours.js')}}"></script>
 <script type="text/javascript">
 
     $(document).ready(function() {
-
-        $('.select2').select2({
-            placeholder: "Sélectionnez un élément",
-            allowClear: true,
-            width: "100%",
-            dropdownParent: $('#choixConcoursModal') // ✅ très important
-        });
 
         const Toast = Swal.mixin({
             toast: true,
@@ -221,9 +229,12 @@
         });
 
         // Étape 1 : interception du premier formulaire
+        // Étape 1 : interception du premier formulaire
         $('#connexion').on('submit', function(e) {
 
             e.preventDefault();
+
+            showLoader('Connexion en cours...');
 
             let email = $('#email').val();
             let password = $('#password').val();
@@ -235,32 +246,77 @@
 
             // Appel AJAX pour récupérer les concours liés à l'utilisateur
             $.ajax({
-                url: "{{ route('login.concours') }}", // Créée cette route côté serveur
+                url: "{{ route('login.concours') }}",
                 method: "POST",
                 data: {
                     email: email,
-                    password: password,
-                    _token: "{{ csrf_token() }}"
+                    password: password
                 },
                 success: function(response) {
+                    hideLoader('');
                     if (response.success && response.concours.length > 0) {
-                        // Remplir le select
-                        $('#concours-select').empty().append('<option value="">Sélectionnez un concours</option>');
-                        response.concours.forEach(c => {
-                            $('#concours-select').append(`<option value="${c.idSession}">${c.libelleConcours} session ${c.libelleAnnee}</option>`);
+
+                        // Sélectionne la zone où afficher les concours
+                        let container = $('#listeConcours');
+                        container.empty(); // vide le contenu avant d’ajouter
+
+                        // Parcours des concours
+                        response.concours.forEach(function(concours) {
+                            let card = `
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-3 card-filter">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex">
+                                <div class="avatar">
+                                    <span class="avatar-title rounded bg-light text-danger font-size-16">
+                                        <img src="{{ asset('assets/images/logoinphb.png') }}" alt="" height="30">
+                                    </span>
+                                </div>
+                                <div class="ms-auto">
+                                    <div class="dropdown float-end">
+                                        <a class="text-muted dropdown-toggle font-size-18" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true">
+                                            <i class="bx bx-dots-horizontal-rounded"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-end">
+                                            <a class="dropdown-item" href="#" data-id="${concours.idSession}">Se connecter</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex-grow-1 mt-4">
+                                <h5 class="font-size-15">
+                                    <a href="javascript:void(0);" class="text-dark">${concours.libelleConcours} - ${concours.codeConcours}</a>
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="px-4 py-2 border-top text-center">
+                            <button class="btn btn-sm btn-primary btnConnexionConcours" data-id="${concours.idSession}">
+                                <i class="mdi mdi-file-document-outline me-1"></i>
+                                Se connecter
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+
+                            container.append(card);
                         });
 
-                        // Injecter email et password
-                        $('#hidden-email').val(email);
-                        $('#hidden-password').val(password);
-
-                        // Afficher le modal
+                        // Afficher le modal après avoir ajouté les concours
                         $('#choixConcoursModal').modal('show');
+
                     } else {
-                        Swal.fire('Aucun concours', response.message || 'Aucun concours trouvé pour cette session. Veillez aller à page d\'inscription pour selectionner les concours en cours. Entrer le même mail et le mot de passe', 'info');
+                        hideLoader('');
+                        Swal.fire(
+                            'Aucun concours',
+                            response.message || 'Aucun concours trouvé pour cet utilisateur.',
+                            'info'
+                        );
                     }
                 },
+
                 error: function(response) {
+                    hideLoader('');
                     let errorMsg = response.responseJSON?.errors || "Erreur inconnue";
 
                     Swal.fire({
@@ -273,17 +329,19 @@
         });
 
         // Étape 2 : soumission finale du formulaire complet (avec concours)
-        $('#form-final-connexion').on('submit', function(e) {
+        $(document).on('click', '.btnConnexionConcours', function(e) {
             e.preventDefault();
 
-            let formData = $(this).serialize(); // Récupère tous les champs y compris le _token
+            showLoader('Connexion en cours...');
+
+            let sessionId = $(this).data('id');
 
             $.ajax({
-                url: "{{ route('login') }}",
-                method: "POST",
-                data: formData, // Envoie le formulaire complet
+                url: `/login/${sessionId}`,
+                method: "get",
+                contentType: "application/x-www-form-urlencoded; charset=UTF-8",
                 success: function(response) {
-
+                    hideLoader('');
                     Toast.fire({
                         title: response.success || 'Connexion réussie',
                         position: "top-end",
@@ -293,11 +351,12 @@
                     });
 
                     setTimeout(function () {
-                        window.location.href = "{{ route('home') }}";
+                        window.location.href = response.redirect;
                     }, 1500);
 
                 },
                 error: function(xhr) {
+                    hideLoader('');
                     let message = "Une erreur est survenue";
                     if (xhr.responseJSON && xhr.responseJSON.message) {
                         message = xhr.responseJSON.message;

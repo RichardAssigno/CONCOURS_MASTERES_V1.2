@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Container\Attributes\DB;
 use Illuminate\Database\Eloquent\Model;
 
 class Session extends Model
@@ -28,6 +29,15 @@ class Session extends Model
             ->from('concours as c')
             ->join('session as s','s.concours_id','=','c.id')
             ->where('s.id','=',$idSession)
+            ->first();
+    }
+
+    public static function getCalendrierBySession($sessionId)
+    {
+        return static::query()->select('c.id', 'c.dateDebut', 'c.dateFin')
+            ->from('calendriers as c')
+            ->join('session as s', 's.calendriers_id', '=', 'c.id')
+            ->where('s.id','=',$sessionId)
             ->first();
     }
 

@@ -104,7 +104,7 @@ class RedirecteurService
 
             return $candidat->idLycee != 1 &&
                 $candidat->idEtablissement != 2 &&
-                $candidat->idDiplome != 1 &&
+                $candidat->idDiplome != 0 &&
                 $candidat->idSpecialite != 1 &&
                 $candidat->idSerie != 1
                 ;

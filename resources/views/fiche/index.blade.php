@@ -109,9 +109,14 @@
             </div>
         </td>
         <td style="width:33%; text-align:center; vertical-align:middle;">
-            @if(mb_strtoupper($candidatConcours->path) != "INDEFINIE")
-                <img src="https://a.concours.inphb.app/storage/{{$candidatConcours->path}}" alt="Mon logo" height="80">
+            @if($candidatConcours->imageBase64)
+                <img src="data:image/{{ $candidatConcours->typeimage }};base64,{{ str_replace("\n", "", $candidatConcours->imageBase64) }}"
+                     alt="Logo" style="height:80px; object-fit: contain;">
+            @else
+                <img src="{{ asset('storage/' . $candidatConcours->path) }}"
+                     alt="Logo" style="height:80px; object-fit: contain;">
             @endif
+
         </td>
         <td class="t-right" style="width:33%;">
             <img src="data:{{ $qrcodeData['mime_type'] }};base64,{{ base64_encode($qrcodeData['qr_code']) }}" alt="QR Code" style="width: 80px; height: 80px;">

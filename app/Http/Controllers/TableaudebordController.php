@@ -7,15 +7,22 @@ use App\Models\Concours;
 use App\Models\Document;
 use App\Models\Formulaire;
 use App\Models\Personne;
+use App\Services\RedirecteurService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class TableaudebordController extends Controller
 {
 
-    public function index(){
+    protected $redirecteurService;
 
-        //dd(session("notes"));
+    public function __construct(RedirecteurService $redirecteurService)
+    {
+        $this->redirecteurService = $redirecteurService;
+    }
+
+
+    public function index(){
 
         $personnes = Personne::getInfosCandidat(Auth::guard('personne')->id(), session('sessions'));
 
@@ -52,6 +59,18 @@ class TableaudebordController extends Controller
             "documentscandidat" => Document::getDocumentsCandidat($personnes->idCandidat),
             "documents" => Document::getDocuments(session("sessions")),
             "nbrdoc" => $nbrdoc,
+        ]);
+
+    }
+
+    public function recupererconcours(Request $request)
+    {
+
+        $concours = Concours::listeconcoursouvert();
+
+        return response()->json([
+            'success' => true,
+            'concours' => $concours
         ]);
 
     }

@@ -9,6 +9,8 @@ use App\Http\Controllers\FormationsController;
 use App\Http\Controllers\InformationsPersonnellesController;
 use App\Http\Controllers\NotesController;
 use App\Http\Controllers\TableaudebordController;
+use App\Http\Controllers\TransfertDossierController;
+use App\Http\Middleware\Cors;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -16,13 +18,20 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {return Auth::guard('personne')->check() ? redirect()->route('tableaudebord.index') : redirect()->route('login');})->name('home');
 
 
-Route::get('login', [\App\Http\Controllers\AuthController::class, 'index'])->name('login.index');
+Route::get('login', [\App\Http\Controllers\AuthController::class, 'login'])->name('login');
 Route::post('/login-concours', [\App\Http\Controllers\AuthController::class, 'recupererconcours'])->name("login.concours");
-Route::post('login', [\App\Http\Controllers\AuthController::class, 'login'])->name('login');
+Route::get('/recuperer-concours', [\App\Http\Controllers\ConcoursController::class, 'recupererconcours'])->name("concours.recupererconcours");
+Route::get('/login/{idSession}', [\App\Http\Controllers\AuthController::class, 'index'])->name('login.index');
+Route::get('/inscription-concours/{idSession}', [\App\Http\Controllers\AuthController::class, 'inscriptionconcours'])->name('inscription.concours');
 
 
 Route::get("/inscription/{code?}", [\App\Http\Controllers\AuthController::class, 'inscription'])->name('inscription');
 Route::post("/inscription", [\App\Http\Controllers\AuthController::class, 'ajoutinscription'])->name('ajoutinscription');
+
+Route::get("/recuperer/photos/{idCandidat}", [\App\Http\Controllers\AuthController::class, 'recupererphoto'])->name('recupererphoto');
+Route::get("/recuperer/pdf/{idCandidatDocument}", [\App\Http\Controllers\AuthController::class, 'recupererpdf'])->name('recupererpdf');
+Route::get("/connecter/etudiant/{idCandidatSession}", [\App\Http\Controllers\AuthController::class, 'connecteretudiant'])->name('connecteretudiant');
+
 
 
 Route::middleware('auth:personne')->group(function () {
@@ -31,6 +40,8 @@ Route::middleware('auth:personne')->group(function () {
     Route::get('se-déconnecter', [AuthController::class, 'logout'])->name('logout');
 
     Route::post('/connecte-a-un-concours', [AuthController::class, 'connexionconcours'])->name('changer.session');
+
+    Route::post('/recuperer-concours', [TableaudebordController::class, 'recupererconcours'])->name('recupererconcours');
 
     Route::get('/informations-personnelles', [InformationsPersonnellesController::class, 'index'])->name('infos.index');
     Route::post('/ajout-informations-personnelles', [InformationsPersonnellesController::class, 'ajout'])->name('infos.ajout');
@@ -57,6 +68,23 @@ Route::middleware('auth:personne')->group(function () {
 
     Route::get('/impression-fiche-de-preinscription', [FicheController::class, 'telecharger'])->name('fiche.telecharger');
 
+    Route::get('/telecharger-fiche', function() {
+        return response()->download(public_path('assets/pdf/fiche.pdf'), 'Fiche_Candidature.pdf');
+    })->name('telecharger.fiche');
+
 });
 
-Route::get('/documents/candidat-id', [DocumentsController::class, "telechargerdossier"])->name('document.download');
+Route::get('/transfert-dossiers-candidats', [TransfertDossierController::class, 'transfererDossiers'])->name('transfert.dossiers');
+
+// Téléchargement du dossier candidat
+Route::get('/documents/candidat_id/{idCandidat}', [DocumentsController::class, "telechargerdossier"])
+    ->middleware(Cors::class)
+    ->name('document.download');
+
+// Prévoir la route OPTIONS pour CORS
+Route::options('/documents/candidat_id/{idCandidat}', function () {
+    return response()->noContent()
+        ->header('Access-Control-Allow-Origin', 'https://admin.concours.inphb.app')
+        ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+        ->header('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With, Authorization');
+});

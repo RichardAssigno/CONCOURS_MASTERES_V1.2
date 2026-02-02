@@ -116,6 +116,11 @@
                                             <p style="font-weight: bold; color: darkred">
                                                 Tous les documents ayant un astérisque (*) sont obligatoires
                                             </p>
+                                            @if(session()->has("codeconcours") && mb_strtoupper(session("codeconcours")) === "LPM")
+                                                <p style="font-weight: bold; color: blue" download>
+                                                    <a href="{{route('telecharger.fiche')}}">Télécharger la Fiche de candidature à la Formation en cliquant ici</a>
+                                                </p>
+                                            @endif
                                             <div class="row mb-3">
                                                 @if($documents->isNotEmpty())
                                                     @foreach($documents as $index => $document)
@@ -134,7 +139,7 @@
 
                                                         <div class="col-md-3 mb-3">
                                                             <h5 class="text-center">{{$document->codeDocumentdossier}}
-                                                                @if($document->requis == 1)
+                                                                @if((int)$document->requis === 1)
                                                                     <span style="font-size: 1.2em; font-weight: bold; color: darkred">
                                                                         *
                                                                     </span>
@@ -153,7 +158,7 @@
                                                                     </div>
                                                                     <h4>
                                                                         {{ $document->codeDocumentdossier }}
-                                                                        @if($document->requis)
+                                                                        @if((int)$document->requis === 1)
                                                                             <span style="font-size: 1.2em; font-weight: bold; color: darkred">*</span>
                                                                         @endif
                                                                     </h4>

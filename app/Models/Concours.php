@@ -20,7 +20,7 @@ class Concours extends Model
     ];
 
 
-    public static function ConcoursCandidats($idCandidat){
+    public static function ConcoursCandidats($idPersonne){
         return static::query()->select(
             'co.id as idConcours',
             'co.libelleConcours',
@@ -56,8 +56,12 @@ class Concours extends Model
             ->join("candidats as c", "c.sessions_id", "=", "s.id")
             ->join("personnes as p", "p.id", "=", "c.personnes_id")
             ->join("anneebacs as ab", "ab.id", "=", "p.anneebacs_id")
-            ->where('p.id', '=', $idCandidat)
+            ->where('p.id', '=', $idPersonne)
+            ->where('s.statut', '=', 1)
             ->orderBy('s.id','desc')
+            ->groupBy(
+                'co.id',
+            )
             ->get();
     }
 
@@ -83,14 +87,16 @@ class Concours extends Model
                 'p.nom',
                 'p.prenoms',
                 'p.email',
+                'p.password',
                 'p.dateNaissance',
                 'p.lieuNaissance',
                 'p.genre',
                 'p.telephone',
                 'p.nomEtPrenomsDunProche',
                 'p.telephoneDunProche',
-                'l.id as idLogo',
+                DB::raw("TO_BASE64(l.image) as imageBase64"),
                 'l.path',
+                'l.typeimage',
                 'ph.photo_path',
                 'ph.photo_type',
                 'ph.photo_nom',
@@ -113,35 +119,6 @@ class Concours extends Model
             ->where('s.id', $idSessionConcours)
             ->groupBy(
                 'co.id',
-                'co.libelleConcours',
-                'co.codeConcours',
-                'co.afficheNouveauBac',
-                'co.ponderationMoyenneTest',
-                'co.notes',
-                'co.nouveauBachelier',
-                'cy.id',
-                'cy.libelle',
-                'cc.id',
-                's.id',
-                'c.id',
-                'c.matricule',
-                'p.id',
-                'p.nom',
-                'p.prenoms',
-                'p.email',
-                'p.dateNaissance',
-                'p.lieuNaissance',
-                'p.genre',
-                'p.telephone',
-                'p.nomEtPrenomsDunProche',
-                'p.telephoneDunProche',
-                'ab.id',
-                'ab.libelle',
-                'p.etablissementOrigine',
-                'p.etablissementSuperieurOrigine',
-                'p.specialite',
-                'p.serie',
-                'p.diplome'
             )
             ->first();
     }
@@ -156,7 +133,7 @@ class Concours extends Model
             ->join('annees as a','a.id','=','s.annees_id')
             ->join('sessionetapesconcours as sec','sec.session_id','=','s.id')
             ->join('etapesconcours as e','e.id','=','sec.etapesConcours_id')
-            ->where('a.statut','=',1)
+            ->where('s.statut','=',1)
             ->where('sec.statut','=',1)
             ->where('e.code','=','E2')
             ->orderBy('c.libelleConcours')
@@ -173,7 +150,7 @@ class Concours extends Model
             ->join('sessionetapesconcours as sec','sec.session_id','=','s.id')
             ->join('etapesconcours as e','e.id','=','sec.etapesConcours_id')
             ->where('c.codeConcours','=',$code)
-            ->where('a.statut','=',1)
+            ->where('s.statut','=',1)
             ->where('sec.statut','=',1)
             ->where('e.code','=','E2')
             ->first();

@@ -8,7 +8,9 @@ use App\Models\Concours;
 use App\Models\Document;
 use App\Models\Dossierscandidature;
 use App\Models\Personne;
+use App\Models\Session;
 use App\Services\MatriculeService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -24,7 +26,7 @@ class AuthController extends Controller
         $this->matriculeService = $matriculeService;
     }
 
-    public function index(){
+    public function login(){
 
         return view('auth.login');
 
@@ -39,9 +41,7 @@ class AuthController extends Controller
             if(!is_null($concours)){
 
                 return view('auth.register', [
-
                     "concours" => $concours
-
                 ]);
 
             }
@@ -63,13 +63,14 @@ class AuthController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
+            'email' => 'required|email|unique:personnes,email',
             'password' => 'required|confirmed|min:8',
             'password_confirmation' => 'required', // 🔹 nom correct
             'sessions_id' => 'required|integer',
         ], [
             'email.required' => 'L\'Email est obligatoire',
             'email.email' => 'L\'Email doit être valide',
+            'email.unique' => 'Votre email existe déjà dans la base de donnée. Si vous voulez postuler à un autre concours, veillez vous connectez, puis choisissez le concours souhaité',
             'password.required' => 'Le mot de passe est obligatoire',
             'password.min' => 'Il faut au moins 8 caractères pour le mot de passe',
             'password.confirmed' => 'Veuillez confirmer le mot de passe correctement',
@@ -85,108 +86,126 @@ class AuthController extends Controller
 
         $data = $validator->validate();
 
+        $calendrier = Session::getCalendrierBySession($data['sessions_id']);
+
+        $dateDebut = Carbon::parse($calendrier->dateDebut);
+        $dateFin   = Carbon::parse($calendrier->dateFin);
+        $today     = Carbon::today();
+
+        if (!$today->between($dateDebut, $dateFin)) {
+
+            $session = Session::query()->findOrFail($data['sessions_id']);
+
+            $date = Carbon::parse($dateFin)->format('d/m/Y');
+
+            $session->query()->create([
+
+                "statut" => 0,
+
+            ]);
+
+            return response()->json(['errors' => "Les inscriptions pour ce concours ont pris fin le $date"], 422);
+
+        }
+
         $personne = Personne::query()->where("email", "=", $data["email"])->first();
 
         $documentacharger = Dossierscandidature::listedocumentcandidature($data['sessions_id']);
 
-        if(!is_null($personne)){
+        if(is_null($personne)){
+
+            $dataPersonne = [
+
+                "email" => $data["email"],
+                "password" => Hash::make($data["password"]),
+                "series_id" => 1,
+                "diplomes_id" => 1,
+                "specialites_id" => 1,
+                "etablissements_id" => 2,
+                "lycees_id" =>1,
+
+            ];
+
+            $personne = Personne::create($dataPersonne);
+
+            $candidat = $this->creercandidat($personne, $data['sessions_id']);
+
             $candidatConcours = Concours::getConcoursCandidat($personne->id, $data['sessions_id']);
+
+            $this->miseensession($candidatConcours, $data['sessions_id']);
+
+            if ($documentacharger->isNotEmpty()){
+
+                foreach ($documentacharger as $value){
+
+                    $dataDocument = [
+
+                        "candidats_id" =>  $candidat->id,
+                        "dossiersCandidature_id" =>  $value->idDossierCandidature,
+
+                    ];
+
+                    Document::create($dataDocument);
+
+                }
+
+            }
 
             Auth::guard('personne')->login($personne);
             $request->session()->regenerate(); // conseillé après login (anti fixation)
 
-            if (!is_null($candidatConcours)){
+            return response()->json(['success' => "Inscription réussie"], 200);
 
-                $this->miseensession($candidatConcours, $data['sessions_id']);
+        }
 
-                $dataUpdate = [
 
-                    "email" => $data["email"],
-                    "password" => Hash::make($data["password"]),
 
-                ];
+    }
 
-                $personne->update($dataUpdate);
+    public function inscriptionconcours($idSession)
+    {
 
-                return response()->json(['success' => "Connexion réussie"], 200);
+        $personne = Personne::query()->findOrFail(Auth::guard('personne')->id());
 
-            }else{
+        $documentacharger = Dossierscandidature::listedocumentcandidature($idSession);
 
-                $candidat = $this->creercandidat($personne, $data['sessions_id']);
+        $candidatConcours = Concours::getConcoursCandidat($personne->id, $idSession);
 
-                $candidatConcours = Concours::getConcoursCandidat($personne->id, $data['sessions_id']);
+        if (is_null($candidatConcours)){
 
-                $this->miseensession($candidatConcours, $data['sessions_id']);
+            $candidat = $this->creercandidat($personne, $idSession);
 
-                if ($documentacharger->isNotEmpty()){
+            $candidatConcours = Concours::getConcoursCandidat($candidat->personnes_id, $idSession);
 
-                    foreach ($documentacharger as $value){
+            $this->miseensession($candidatConcours, $idSession);
 
-                        $dataDocument = [
+            if ($documentacharger->isNotEmpty()){
 
-                            "candidats_id" =>  $candidat->id,
-                            "dossiersCandidature_id" =>  $value->idDossierCandidature,
+                foreach ($documentacharger as $value){
 
-                        ];
+                    $dataDocument = [
 
-                        Document::create($dataDocument);
+                        "candidats_id" =>  $candidat->id,
+                        "dossiersCandidature_id" =>  $value->idDossierCandidature,
 
-                    }
+                    ];
+
+                    Document::query()->create($dataDocument);
 
                 }
 
-                Auth::guard('personne')->login($personne);
-                $request->session()->regenerate(); // conseillé après login (anti fixation)
-
-                return response()->json(['success' => "Inscription réussie"], 200);
-
             }
 
+            $redirectUrl = redirect()->intended(route('home'))->getTargetUrl();
+
+            return response()->json([
+                'success' => "Connexion réussie",
+                'redirect' => $redirectUrl
+            ], 200);
 
         }
 
-        $dataPersonne = [
-
-            "email" => $data["email"],
-            "password" => Hash::make($data["password"]),
-            "series_id" => 1,
-            "diplomes_id" => 1,
-            "specialites_id" => 1,
-            "etablissements_id" => 2,
-            "lycees_id" =>1,
-
-        ];
-
-        $personne = Personne::create($dataPersonne);
-
-        $candidat = $this->creercandidat($personne, $data['sessions_id']);
-
-        $candidatConcours = Concours::getConcoursCandidat($personne->id, $data['sessions_id']);
-
-        $this->miseensession($candidatConcours, $data['sessions_id']);
-
-        if ($documentacharger->isNotEmpty()){
-
-            foreach ($documentacharger as $value){
-
-                $dataDocument = [
-
-                    "candidats_id" =>  $candidat->id,
-                    "dossiersCandidature_id" =>  $value->idDossierCandidature,
-
-                ];
-
-                Document::create($dataDocument);
-
-            }
-
-        }
-
-        Auth::guard('personne')->login($personne);
-        $request->session()->regenerate(); // conseillé après login (anti fixation)
-
-
-        return response()->json(['success' => "Inscription réussie"], 200);
+        return response()->json(['errors' => "Vous êtes déjà inscrit à ce concours, veillez vous connectez"], 422);
 
     }
 
@@ -212,6 +231,8 @@ class AuthController extends Controller
 
         if (Auth::guard('personne')->attempt($credentials, $remember)) {
 
+            $request->session()->regenerate();
+
             $concours = Concours::ConcoursCandidats(Auth::guard('personne')->id());
 
             return response()->json([
@@ -224,37 +245,47 @@ class AuthController extends Controller
 
     }
 
-    public function login(Request $request)
+    public function index($idSession)
     {
 
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
-            'password' => 'required',
-            'sessions_id' => 'required|integer',
-        ], [
+        $candidatConcours = Concours::getConcoursCandidat(Auth::guard('personne')->id(), $idSession);
 
-            'email.required' => 'L\'Email est obligatoire',
-            'password.required' => 'Le mot de passe est obligatoire',
-            'sessions_id.required' => 'Le Concours est obligatoire',
-            'sessions_id.integer' => 'Le concours doit être un nombre entier',
+        $documentsCandidat = Document::where('candidats_id', $candidatConcours->idCandidat)
+            ->pluck('dossiersCandidature_id')
+            ->toArray();
 
-        ]);
+        $documentsACharger = Dossierscandidature::where('sessions_id', $idSession)
+            ->pluck('id')
+            ->toArray();
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+        // On cherche les documents manquants
+        $documentsManquants = array_diff($documentsACharger, $documentsCandidat);
+
+        // S'il y a des documents à ajouter
+        if (!empty($documentsManquants)) {
+
+            foreach ($documentsManquants as $idDossier) {
+
+                Document::create([
+                    'candidats_id' => $candidatConcours->idCandidat,
+                    'dossiersCandidature_id' => $idDossier,
+                ]);
+            }
         }
 
-        $data = $validator->validate();
-
-        $candidatConcours = Concours::getConcoursCandidat(Auth::guard('personne')->id(), $data['sessions_id']);
 
         if(!is_null($candidatConcours)){
 
-            $this->miseensession($candidatConcours, $data['sessions_id']);
+            $this->miseensession($candidatConcours, $idSession);
 
-            $request->session()->regenerate();
+            /*$redirectUrl = redirect()->intended(route('home'))->getTargetUrl();*/
+            $redirectUrl = session()->pull('url.intended', route('home'));
 
-            return response()->json(['success' => "Connexion réussie"], 200);
+
+            return response()->json([
+                'success' => htmlspecialchars("Connexion réussie"),
+                'redirect' => $redirectUrl
+            ], 200);
 
         }
 
@@ -281,6 +312,29 @@ class AuthController extends Controller
 
         $candidatConcours = Concours::getConcoursCandidat(Auth::guard('personne')->id(), $data['idSession']);
 
+        $documentsCandidat = Document::where('candidats_id', $candidatConcours->idCandidat)
+            ->pluck('dossiersCandidature_id')
+            ->toArray();
+
+        $documentsACharger = Dossierscandidature::where('sessions_id', $data['idSession'])
+            ->pluck('id')
+            ->toArray();
+
+        // On cherche les documents manquants
+        $documentsManquants = array_diff($documentsACharger, $documentsCandidat);
+
+        // S'il y a des documents à ajouter
+        if (!empty($documentsManquants)) {
+
+            foreach ($documentsManquants as $idDossier) {
+
+                Document::create([
+                    'candidats_id' => $candidatConcours->idCandidat,
+                    'dossiersCandidature_id' => $idDossier,
+                ]);
+            }
+        }
+
         $this->miseensession($candidatConcours, $data['idSession']);
 
         return response()->json([
@@ -299,7 +353,7 @@ class AuthController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect()->route('login.index');
+        return redirect()->route('login');
 
     }
 
@@ -316,9 +370,104 @@ class AuthController extends Controller
 
         ];
 
-        $candidat = Candidat::create($dataCandidat);
+        $candidat = Candidat::query()->create($dataCandidat);
 
         return $candidat;
+
+    }
+
+    public function recupererphoto($idCandidat)
+    {
+
+        $candidat = Candidat::getPhotoByCandidatId($idCandidat);
+
+        // Génère une URL complète vers la photo
+        $photoUrl = url('/storage/' . $candidat->photo_path);
+
+        return response()->json([
+            'success' => true,
+            'photo_url' => $photoUrl
+        ]);
+
+    }
+    public function recupererpdf($idCandidatDocument)
+    {
+        $elements = explode("_", $idCandidatDocument);
+
+        $idCandidat = $elements[0];
+        $idDocument = $elements[1];
+
+        $document = Candidat::getDocumentByCandidat($idCandidat, $idDocument);
+
+        // Chemin physique du fichier
+        $file = storage_path('app/public/' . $document->filePath);
+
+        $parts = explode('/public/public/', $file);
+
+        if (count($parts) >= 2) {
+            // Remplacer uniquement la DERNIÈRE occurrence de /public/
+            $newPath = preg_replace('/public\/(?!.*public)/', 'documents/', $file);
+        } else {
+            // Une seule occurrence → on ne change rien
+            $newPath = $file;
+        }
+
+        if (!file_exists($newPath)) {
+            abort(404, "Fichier introuvable.");
+        }
+
+        // Retourne le PDF directement dans le navigateur
+        return response()->file($newPath);
+    }
+
+
+    public function connecteretudiant($idCandidatSession)
+    {
+
+        $elements = explode("_", $idCandidatSession);
+
+        $idCandidat = $elements[0];
+
+        $idSession = $elements[1];
+
+        $candidat = Candidat::getPhotoByCandidatId($idCandidat);
+
+        $candidatConcours = Concours::getConcoursCandidat($candidat->idPersonne, $idSession);
+
+        $documentsCandidat = Document::where('candidats_id', $candidatConcours->idCandidat)
+            ->pluck('dossiersCandidature_id')
+            ->toArray();
+
+        $documentsACharger = Dossierscandidature::where('sessions_id', $idSession)
+            ->pluck('id')
+            ->toArray();
+
+        // On cherche les documents manquants
+        $documentsManquants = array_diff($documentsACharger, $documentsCandidat);
+
+        // S'il y a des documents à ajouter
+        if (!empty($documentsManquants)) {
+
+            foreach ($documentsManquants as $idDossier) {
+
+                Document::create([
+                    'candidats_id' => $candidatConcours->idCandidat,
+                    'dossiersCandidature_id' => $idDossier,
+                ]);
+            }
+        }
+
+        if (Auth::guard('personne')->loginUsingId($candidatConcours->idPersonne)) {
+
+            $this->miseensession($candidatConcours, $idSession);
+
+            return redirect()->route('tableaudebord.index', ['idSession' => $idSession])
+                ->with('succes', 'Vous êtes connectés à la plateforme du candidat !');
+
+        }
+
+        return redirect()->route('login.index')->with('echec', 'Impossible de se connecter !');
+
 
     }
 

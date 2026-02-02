@@ -27,7 +27,7 @@
             </button>
 
             <div class="d-none d-sm-block ms-2 align-self-center">
-                <h4 class="page-title">{{$titre ?? "Tableau de Bord"}}</h4>
+                <h4 class="page-title">{{ mb_strtoupper(session("candidatConcours")->libelleConcours . " - " . session("candidatConcours")->codeConcours . " | " . $titre) ?? mb_strtoupper("Tableau de Bord")}}</h4>
             </div>
         </div>
 
@@ -107,7 +107,7 @@
                         @endif
 
                         @if( session()->has("notes"))
-                            @if(session("notes") === "1")
+                            @if(session("notes") === 1)
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle arrow-none" href="{{route("notes.index")}}" id="topnav-note" role="button">
                                         <i class="icon nav-icon" data-eva="file-text-outline"></i>

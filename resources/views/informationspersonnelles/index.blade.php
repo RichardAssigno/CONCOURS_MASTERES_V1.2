@@ -77,7 +77,7 @@
 
                             <!-- ==================== Photo ==================== -->
                             <div class="card">
-                                <a href="#addproduct-img-collapse" class="text-dark collapsed" data-bs-toggle="collapse" aria-expanded="false" aria-haspopup="true" aria-controls="addproduct-img-collapse">
+                                <a href="#addproduct-img-collapse" class="text-dark" data-bs-toggle="collapse" aria-expanded="false" aria-haspopup="true" aria-controls="addproduct-img-collapse">
                                     <div class="p-4">
 
                                         <div class="d-flex align-items-center">
@@ -101,7 +101,7 @@
                                     </div>
                                 </a>
 
-                                <div id="addproduct-img-collapse" class="collapse" data-bs-parent="#addproduct-accordion">
+                                <div id="addproduct-img-collapse" class="" data-bs-parent="#addproduct-accordion">
                                     <div class="row d-flex justify-content-center">
                                         <div class="col-md-6">
                                             <div class="p-4 border-top w-100">
@@ -144,7 +144,7 @@
                                         </div>
                                     </a>
 
-                                    <div id="addproduct-billinginfo-collapse" class="collapse show" data-bs-parent="#addproduct-accordion">
+                                    <div id="addproduct-billinginfo-collapse" class="collapse show" >
                                         <div class="p-4 border-top">
                                             <div class="row">
                                                 <div class="col-md-4">
@@ -393,6 +393,8 @@
 
         e.preventDefault();
 
+        showLoader("Enrégistrement en cours... !")
+
         let url = "{{ route('infos.ajout') }}";
 
         let formData = $(this).serialize();
@@ -402,6 +404,7 @@
             type: "POST",
             data: formData,
             success: function (response) {
+                hideLoader("")
                 if (response.success) {
                     Toast.fire({
                         title: response.success, // 🔹 car c'est ici que le message est stocké
@@ -416,6 +419,7 @@
                     }, 1500);
                 }
                 else{
+                    hideLoader("")
                     Swal.fire({
                         title: "Echec",
                         text: response.message,
@@ -426,6 +430,7 @@
 
             },
             error: function (xhr) {
+                hideLoader("")
                 if (xhr.status === 422) {
                     let errorHtml = "Une erreur est survenue.";
 
