@@ -241,34 +241,40 @@
                     }, 1500);
                 },
 
-                error: function(xhr) {
+                error: function (response) {
+                    hideLoader('');
 
-                    hideLoader("");
+                    let errorMsg = '';
 
-                    let message = "Une erreur est survenue";
+                    if (response.responseJSON) {
 
-                    // 👉 Laravel renvoie les erreurs dans "errors"
-                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        // 🔹 Cas 1 : erreurs de validation (objet)
+                        if (typeof response.responseJSON.errors === 'object') {
 
-                        let errors = xhr.responseJSON.errors;
+                            errorMsg = Object.values(response.responseJSON.errors)
+                                .map(err => err[0]) // prendre le premier message
+                                .join('\n');
 
-                        // Convertir l'objet d'erreurs en texte lisible
-                        message = Object.values(errors)
-                            .flat()
-                            .join("<br>");
-                    }
+                        }
+                        // 🔹 Cas 2 : message simple
+                        else if (typeof response.responseJSON.errors === 'string') {
+                            errorMsg = response.responseJSON.errors;
+                        }
+                        else {
+                            errorMsg = 'Une erreur est survenue.';
+                        }
 
-                    // 👉 Certains cas renvoient juste un message
-                    else if (xhr.responseJSON && xhr.responseJSON.message) {
-                        message = xhr.responseJSON.message;
+                    } else {
+                        errorMsg = 'Erreur serveur. Veuillez réessayer.';
                     }
 
                     Swal.fire({
                         icon: 'error',
-                        title: 'Erreur de validation',
-                        html: message // garder les <br>
+                        title: 'Erreur',
+                        text: errorMsg
                     });
                 }
+
             });
 
         });

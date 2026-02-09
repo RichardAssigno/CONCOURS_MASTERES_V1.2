@@ -88,17 +88,18 @@ class AuthController extends Controller
 
         $calendrier = Session::getCalendrierBySession($data['sessions_id']);
 
-        $dateDebut = Carbon::parse($calendrier->dateDebut);
-        $dateFin   = Carbon::parse($calendrier->dateFin);
+        $dateDebut = $this->parseDateSmart($calendrier->dateDebut);
+        $dateFin   = $this->parseDateSmart($calendrier->dateFin);
+
         $today     = Carbon::today();
 
-        if (!$today->between($dateDebut, $dateFin)) {
+        if (!($today->between($dateDebut, $dateFin))) {
 
             $session = Session::query()->findOrFail($data['sessions_id']);
 
             $date = Carbon::parse($dateFin)->format('d/m/Y');
 
-            $session->query()->create([
+            $session->update([
 
                 "statut" => 0,
 
@@ -164,6 +165,27 @@ class AuthController extends Controller
 
     public function inscriptionconcours($idSession)
     {
+        $calendrier = Session::getCalendrierBySession($idSession);
+        $dateDebut = $this->parseDateSmart($calendrier->dateDebut);
+        $dateFin   = $this->parseDateSmart($calendrier->dateFin);
+
+        $today = Carbon::today();
+
+        if (!($today->between($dateDebut, $dateFin))) {
+
+            $session = Session::query()->findOrFail($idSession);
+
+            $date = Carbon::parse($dateFin)->format('d/m/Y');
+
+            $session->update([
+
+                "statut" => 0,
+
+            ]);
+
+            return response()->json(['errors' => "Les inscriptions pour ce concours ont pris fin le $date"], 422);
+
+        }
 
         $personne = Personne::query()->findOrFail(Auth::guard('personne')->id());
 
@@ -485,6 +507,36 @@ class AuthController extends Controller
         session()->put('codeconcours', $candidatConcours->codeConcours);
 
 
+    }
+
+    private function parseDateSmart($date)
+    {
+
+        // Déjà un Carbon → on retourne
+        if ($date instanceof Carbon) {
+            return $date;
+        }
+
+        if (empty($date)) {
+            return null;
+        }
+
+        $date = trim($date);
+
+
+
+        // Format FR : 14/07/2025
+        if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $date)) {
+            return Carbon::createFromFormat('d/m/Y', $date);
+        }
+
+        // Format FR avec heure : 14/07/2025 00:00:00
+        if (preg_match('/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2}$/', $date)) {
+            return Carbon::createFromFormat('d/m/Y H:i:s', $date);
+        }
+
+        // Format ISO : 2025-11-10 ou 2025-11-10 00:00:00
+        return Carbon::parse($date);
     }
 
 

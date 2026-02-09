@@ -10,6 +10,7 @@ class Session extends Model
 
     protected $table = 'session';
 
+
     protected $fillable = [
         'concours_id',
         'annees_id',
@@ -22,6 +23,7 @@ class Session extends Model
         'userDelete',
         'supprimer',
         'deleted_at',
+        'statut',
     ];
 
     public static function infoSession($idSession){
