@@ -69,6 +69,8 @@ class DocumentsController extends Controller
                 'fileName' => $file->getClientOriginalName(),
                 'url' => asset("storage/" . $path),
                 'filePath' => $path,
+                'id' => $document->id,
+                'idDossiercandidature' => $document->dossiersCandidature_id,
             ]);
         }
 
@@ -86,12 +88,11 @@ class DocumentsController extends Controller
         $document = Document::query()->findOrFail($request->id);
 
         // Vérifier si le fichier existe dans le storage et le supprimer
-        if (\Storage::disk('public')->exists($document->filePath)) {
+        if (!is_null($document->filePath) && \Storage::disk('public')->exists($document->filePath)) {
             \Storage::disk('public')->delete($document->filePath);
         }
 
-        // Supprimer l'enregistrement du document dans la base
-       /* $document->update(['filePath'  => null,]);*/
+        $document->update(['filePath'  => null]);
 
         return response()->json(['success' => true]);
     }

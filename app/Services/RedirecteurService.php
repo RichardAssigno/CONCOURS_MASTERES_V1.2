@@ -1,182 +1,202 @@
 <?php
+
 namespace App\Services;
 
-use App\Models\Candidat;
 use App\Models\Choix;
 use App\Models\Document;
-use App\Models\Equivalence;
 use App\Models\Formulaire;
-use App\Models\Note;
 use App\Models\Personne;
-use App\Models\Supportsmd;
 use Illuminate\Support\Facades\Auth;
 
 class RedirecteurService
 {
-    public function redirecteur()
+    public function redirecteur(): array
     {
+        $candidat = Personne::getInfosCandidat(Auth::guard("personne")->id(), session("sessions"));
 
-        $infosCandidats = Personne::getInfosCandidat(Auth::guard("personne")->id(), session("sessions"));
-
-        $v = '1';
-
-
-        if (is_null($infosCandidats)) {
-            return [
-                'status' => 'error',
-                'message' => 'Matricule inconnu',
-                'route' => 'home' // route à rediriger si besoin
-            ];
+        if (is_null($candidat)) {
+            return $this->erreur('Aucune candidature active trouvee pour cette session.', 'tableaudebord.index');
         }
 
-        if (!$this->ajoutinfopersonnelles($infosCandidats)) {
-            return [
-                'status' => 'error',
-                'message' => 'Une ou plusieurs informations personnelles n\'ont pas été ajoutées',
-                'route' => 'infos.index'
-            ];
+        if (!$this->infosPersonnellesCompletees($candidat)) {
+            return $this->erreur("Veuillez renseigner toutes vos informations personnelles avant de continuer.", 'infos.index');
         }
 
-        if (!$this->ajoutformation($infosCandidats)) {
-            return [
-                'status' => 'error',
-                'message' => 'Une ou plusieurs informations de formation n\'ont pas été ajoutées',
-                'route' => 'formation.index'
-            ];
+        if (!$this->formationCompletee($candidat)) {
+            return $this->erreur("Veuillez renseigner toutes vos informations de formation avant de continuer.", 'formation.index');
         }
 
-        if (!$this->notesajouter($infosCandidats)) {
-            return [
-                'status' => 'error',
-                'message' => 'Une ou plusieurs notes n\'ont pas été ajoutées',
-                'route' => 'notes.index'
-            ];
+        if ($this->emploiRequis() && !$this->emploiComplete($candidat)) {
+            return $this->erreur("Veuillez renseigner vos informations d'emploi avant de continuer.", 'emploi.index');
         }
 
-        if (!$this->verifchoixconcours($infosCandidats)) {
-            return [
-                'status' => 'error',
-                'message' => 'Le candidat n\'a pas choisi de concours',
-                'route' => 'choix.index'
-            ];
+        if (!$this->notesAjoutees($candidat)) {
+            return $this->erreur("Veuillez renseigner toutes vos notes avant de continuer.", 'notes.index');
         }
 
-        if (!$this->verifdocumentcharger($infosCandidats)) {
-            return [
-                'status' => 'error',
-                'message' => 'Veillez téléverser tous les documents',
-                'route' => 'documents.index'
-            ];
+        if (!$this->choixConcoursValide($candidat)) {
+            return $this->erreur("Veuillez choisir au moins une filiere avant de continuer.", 'choix.index');
+        }
+
+        if (!$this->ordreChoixValide($candidat)) {
+            return $this->erreur("Veuillez ordonner vos choix avant de continuer.", 'choix.ordrechoix');
+        }
+
+        if (!$this->documentsCharges($candidat)) {
+            return $this->erreur("Veuillez televerser tous les documents obligatoires avant de continuer.", 'documents.index');
         }
 
         return [
-            'status' => 'ok'
+            'status' => 'ok',
+            'message' => 'Dossier complet.',
+            'route' => null,
         ];
-
     }
 
-    private function ajoutinfopersonnelles($candidat)
+    public function premiereEtapeIncomplete(): ?array
     {
+        $resultat = $this->redirecteur();
 
-        $values = collect([$candidat->nom, $candidat->prenoms,$candidat->dateNaissance, $candidat->lieuNaissance, $candidat->telephone, $candidat->genre, $candidat->nomEtPrenomsDunProche, $candidat->telephoneDunProche]);
+        return $resultat['status'] === 'ok' ? null : $resultat;
+    }
 
-        if ($values->contains(null)) {
+    private function infosPersonnellesCompletees($candidat): bool
+    {
+        $champs = [
+            'nom',
+            'prenoms',
+            'dateNaissance',
+            'lieuNaissance',
+            'telephone',
+            'genre',
+            'nomEtPrenomsDunProche',
+            'telephoneDunProche',
+            'idAnneebac',
+        ];
+
+        foreach ($champs as $champ) {
+            if (!$this->renseigne($candidat->{$champ} ?? null)) {
+                return false;
+            }
+        }
+
+        if ($this->estConcoursMstau()) {
+            return $this->renseigne($candidat->financements ?? null);
+        }
+
+        return true;
+    }
+
+    private function formationCompletee($candidat): bool
+    {
+        if (!$this->selectionValide($candidat->idLycee ?? null, [1])
+            || !$this->selectionValide($candidat->idSerie ?? null, [1])
+            || !$this->selectionValide($candidat->idDiplome ?? null, [0, 1])) {
             return false;
-        } else {
+        }
 
+        if (mb_strtoupper((string) session('cycles')) !== 'BACHELIER') {
+            if (!$this->selectionValide($candidat->idEtablissement ?? null, [2])
+                || !$this->selectionValide($candidat->idSpecialite ?? null, [1])) {
+                return false;
+            }
+        }
+
+        if ($this->estConcoursMstau()) {
+            return $this->renseigne($candidat->niveauetudes ?? null);
+        }
+
+        return true;
+    }
+
+    private function emploiComplete($candidat): bool
+    {
+        return $this->renseigne($candidat->professions ?? null)
+            && $this->renseigne($candidat->employeurs ?? null)
+            && $this->renseigne($candidat->experiences ?? null);
+    }
+
+    private function notesAjoutees($candidat): bool
+    {
+        if (!$this->notesRequises()) {
             return true;
         }
 
+        $infos = Formulaire::getInfosMoyennesCandidat($candidat->idCandidat, session("sessions"));
+
+        return $infos->isNotEmpty()
+            && $infos->every(fn ($note) => $this->renseigne($note->moyenne ?? null));
     }
 
-    private function ajoutformation($candidat)
+    private function choixConcoursValide($candidat): bool
     {
-        if (session()->has('cycles')) {
+        return Choix::getChoixCandidat($candidat->idPersonne, session("sessions"))->isNotEmpty();
+    }
 
-            if (mb_strtoupper(session('cycles')) === 'BACHELIER'){
-
-                return $candidat->idLycee != 1 &&
-                    $candidat->idDiplome != 1 &&
-                    $candidat->idSerie != 1
-                    ;
-
-            }
-
-            return $candidat->idLycee != 1 &&
-                $candidat->idEtablissement != 2 &&
-                $candidat->idDiplome != 0 &&
-                $candidat->idSpecialite != 1 &&
-                $candidat->idSerie != 1
-                ;
-
+    private function ordreChoixValide($candidat): bool
+    {
+        if ((int) session('nombrefiliere') <= 1) {
+            return true;
         }
 
+        $choix = Choix::getChoixCandidat($candidat->idPersonne, session("sessions"));
+
+        return $choix->isNotEmpty()
+            && $choix->every(fn ($item) => $this->renseigne($item->ordreChoix ?? null));
     }
 
-    private function notesajouter($infosCandidats)
+    private function documentsCharges($candidat): bool
     {
+        $documents = Document::getListeDocuments($candidat->idCandidat);
+        $documentsRequis = Document::getDocuments(session("sessions"))
+            ->filter(fn ($document) => (int) $document->requis === 1);
 
-        $infos = Formulaire::getInfosMoyennesCandidat($infosCandidats->idCandidat, session("sessions"));
-
-        if (session()->has('notes')) {
-
-            if (session("notes") === 1){
-
-                foreach ($infos as $value) {
-
-                    if (is_null($value->moyenne)) {
-
-                        return false;
-
-                    }
-
-                }
-
-            }else{
-
-                return true;
-            }
-
+        if ($documentsRequis->isEmpty()) {
+            return true;
         }
 
+        foreach ($documentsRequis as $documentRequis) {
+            $documentCandidat = $documents->firstWhere('idDossiercandidature', $documentRequis->idDossiercandidature);
 
-
-        return true;
-
-
-    }
-
-    private function verifchoixconcours($infosCandidats)
-    {
-
-        $choixcandidat = Choix::getChoixCandidat($infosCandidats->idPersonne, session("sessions"));
-
-        return $choixcandidat->isNotEmpty();
-
-    }
-
-    private function verifdocumentcharger($infosCandidats)
-    {
-
-        $document =Document::getDocumentsCandidat($infosCandidats->idCandidat);
-
-        if ($document->isNotEmpty()) {
-
-            foreach ($document as $value) {
-
-                if (is_null($value->filePath) && $value->requis == 1) {
-
-                    return false;
-
-                }
-
+            if (is_null($documentCandidat) || !$this->renseigne($documentCandidat->filePath ?? null)) {
+                return false;
             }
-
         }
 
         return true;
-
     }
 
+    private function notesRequises(): bool
+    {
+        return (string) session('notes') === '1';
+    }
 
+    private function emploiRequis(): bool
+    {
+        return $this->estConcoursMstau();
+    }
+
+    private function estConcoursMstau(): bool
+    {
+        return mb_strtoupper((string) session('codeconcours')) === 'MSTAU';
+    }
+
+    private function selectionValide($value, array $valeursInvalides): bool
+    {
+        return $this->renseigne($value) && !in_array((int) $value, $valeursInvalides, true);
+    }
+
+    private function renseigne($value): bool
+    {
+        return !is_null($value) && trim((string) $value) !== '';
+    }
+
+    private function erreur(string $message, string $route): array
+    {
+        return [
+            'status' => 'error',
+            'message' => $message,
+            'route' => $route,
+        ];
+    }
 }

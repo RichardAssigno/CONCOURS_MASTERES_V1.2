@@ -579,6 +579,122 @@ body[data-layout="horizontal"] .page-content {
   grid-template-columns: 280px minmax(0, 1fr);
 }
 
+.cm-workflow-page .custom-accordion,
+.page-content .custom-accordion {
+  max-width: 1160px;
+  margin: 0 auto;
+}
+
+.cm-workflow-page .custom-accordion > form > .card,
+.cm-workflow-page .custom-accordion > .card,
+.page-content .custom-accordion > form > .card,
+.page-content .custom-accordion > .card {
+  border: 1px solid #e8edf5;
+  border-radius: 8px;
+  box-shadow: 0 10px 24px rgba(20, 27, 43, 0.05);
+  overflow: hidden;
+}
+
+.cm-workflow-page .custom-accordion .card > a,
+.page-content .custom-accordion .card > a {
+  background: #ffffff;
+  border-bottom: 1px solid #edf1f7;
+  display: block;
+}
+
+.cm-workflow-page .custom-accordion .avatar-title,
+.page-content .custom-accordion .avatar-title {
+  border-radius: 8px !important;
+}
+
+.cm-workflow-page .custom-accordion h5,
+.page-content .custom-accordion h5 {
+  color: #293042;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.cm-workflow-page .custom-accordion .border-top,
+.page-content .custom-accordion .border-top {
+  border-top: 0 !important;
+}
+
+.cm-workflow-page .form-label,
+.page-content .custom-accordion .form-label {
+  color: #344054;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.cm-workflow-page .form-control,
+.cm-workflow-page .form-select,
+.page-content .custom-accordion .form-control,
+.page-content .custom-accordion .form-select {
+  border-color: #d9e1ec;
+  border-radius: 8px;
+  min-height: 42px;
+}
+
+.cm-workflow-page .form-control:focus,
+.cm-workflow-page .form-select:focus,
+.page-content .custom-accordion .form-control:focus,
+.page-content .custom-accordion .form-select:focus {
+  border-color: #3b76e1;
+  box-shadow: 0 0 0 3px rgba(59, 118, 225, 0.12);
+}
+
+.cm-workflow-page .card-radio,
+.page-content .custom-accordion .card-radio {
+  border: 1px solid #e8edf5;
+  border-radius: 8px;
+  min-height: 116px;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.cm-workflow-page .card-radio-input:checked + .card-radio,
+.page-content .custom-accordion .card-radio-input:checked + .card-radio {
+  border-color: #3b76e1;
+  box-shadow: 0 10px 20px rgba(59, 118, 225, 0.1);
+}
+
+.cm-workflow-page .dropzone,
+.page-content .custom-accordion .dropzone {
+  background: #f8fafc;
+  border: 1px dashed #b8c4d6;
+  border-radius: 8px;
+  min-height: 170px;
+}
+
+.cm-workflow-page .dropzone:hover,
+.page-content .custom-accordion .dropzone:hover {
+  border-color: #3b76e1;
+}
+
+.cm-workflow-page .table,
+.page-content .custom-accordion .table {
+  border-color: #edf1f7;
+}
+
+.cm-workflow-page .table thead th,
+.page-content .custom-accordion .table thead th {
+  background: #f8fafc;
+  color: #344054;
+  font-weight: 700;
+}
+
+.cm-workflow-page .btn,
+.page-content .custom-accordion .btn {
+  border-radius: 8px;
+}
+
+.cm-workflow-page .dd-handle,
+.page-content .custom-accordion .dd-handle {
+  border-color: #e8edf5;
+  border-radius: 8px;
+  min-height: 46px;
+  padding: 10px 12px;
+}
+
 @media (max-width: 1199.98px) {
   .cm-hero {
     grid-template-columns: 1fr;

@@ -77,9 +77,10 @@ class TableaudebordController extends Controller
 
         $infosPersonnellesCompletes = $this->infosPersonnellesCompletes($personnes);
         $formationComplete = $this->formationComplete($personnes);
+        $emploiComplete = $this->emploiComplete($personnes);
         $notesCompletes = $this->notesCompletes($notesBrutes);
         $choixComplets = $choix->isNotEmpty();
-        $documentsComplets = $documents->isEmpty() || $documentscandidat->count() >= $documents->count();
+        $documentsComplets = $this->documentsComplets($documents, Document::getListeDocuments($personnes->idCandidat));
 
         $etapes = collect([
             [
@@ -97,6 +98,16 @@ class TableaudebordController extends Controller
                 'hint' => 'Renseigner votre parcours',
             ],
         ]);
+
+        if (mb_strtoupper((string) session('codeconcours')) === 'MSTAU') {
+            $etapes->push([
+                'label' => 'Emploi',
+                'complete' => $emploiComplete,
+                'route' => route('emploi.index'),
+                'icon' => 'briefcase-outline',
+                'hint' => "Renseigner votre emploi",
+            ]);
+        }
 
         if ($this->notesAttendues()) {
             $etapes->push([
@@ -151,6 +162,7 @@ class TableaudebordController extends Controller
             'nbrdoc' => $documentscandidat->count(),
             'infosPersonnellesCompletes' => $infosPersonnellesCompletes,
             'formationComplete' => $formationComplete,
+            'emploiComplete' => $emploiComplete,
             'notesCompletes' => $notesCompletes,
             'choixComplets' => $choixComplets,
             'documentsComplets' => $documentsComplets,
@@ -216,6 +228,36 @@ class TableaudebordController extends Controller
         }
 
         return $notes->isNotEmpty() && $notes->every(fn ($note) => $this->valeurRenseignee($note->moyenne ?? null));
+    }
+
+    private function emploiComplete($candidat): bool
+    {
+        if (mb_strtoupper((string) session('codeconcours')) !== 'MSTAU') {
+            return true;
+        }
+
+        return $this->valeurRenseignee($candidat->professions ?? null)
+            && $this->valeurRenseignee($candidat->employeurs ?? null)
+            && $this->valeurRenseignee($candidat->experiences ?? null);
+    }
+
+    private function documentsComplets($documentsAttendus, $documentsCandidat): bool
+    {
+        $documentsRequis = $documentsAttendus->filter(fn ($document) => (int) $document->requis === 1);
+
+        if ($documentsRequis->isEmpty()) {
+            return true;
+        }
+
+        foreach ($documentsRequis as $documentRequis) {
+            $documentCandidat = $documentsCandidat->firstWhere('idDossiercandidature', $documentRequis->idDossiercandidature);
+
+            if (is_null($documentCandidat) || !$this->valeurRenseignee($documentCandidat->filePath ?? null)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private function notesAttendues(): bool

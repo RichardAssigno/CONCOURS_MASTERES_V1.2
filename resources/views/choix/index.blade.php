@@ -54,7 +54,7 @@
     <div class="main-content">
 
         <div class="page-content">
-            <div class="container-fluid">
+            <div class="container-fluid cm-workflow-page">
                 @if(session('error'))
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         {{ session('error') }}
@@ -198,7 +198,7 @@
 
 
             },
-            error: function (xhr) {7
+            error: function (xhr) {
                 hideLoader()
                 if (xhr.status === 422) {
                     let errorHtml = "Une erreur est survenue.";
