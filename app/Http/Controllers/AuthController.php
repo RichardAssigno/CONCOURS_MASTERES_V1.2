@@ -249,7 +249,7 @@ class AuthController extends Controller
 
         $credentials = $request->only('email', 'password');
 
-        $remember = $request->filled('remember');
+        $remember = $request->boolean('remember');
 
         if (Auth::guard('personne')->attempt($credentials, $remember)) {
 
@@ -257,9 +257,25 @@ class AuthController extends Controller
 
             $concours = Concours::ConcoursCandidats(Auth::guard('personne')->id());
 
+            if ($concours->isEmpty()) {
+                Auth::guard('personne')->logout();
+
+                return response()->json(['errors' => "Aucune candidature active n'est rattachee a ce compte."], 422);
+            }
+
+            $sessionId = $concours->first()->idSession;
+            $candidatConcours = Concours::getConcoursCandidat(Auth::guard('personne')->id(), $sessionId);
+
+            if (is_null($candidatConcours)) {
+                return response()->json(['errors' => "Impossible de charger la session du candidat."], 422);
+            }
+
+            $this->synchroniserDocumentsCandidat($candidatConcours, $sessionId);
+            $this->miseensession($candidatConcours, $sessionId);
+
             return response()->json([
                 'success' => true,
-                'concours' => $concours
+                'redirect' => route('tableaudebord.index')
             ]);
         }
 
@@ -377,6 +393,26 @@ class AuthController extends Controller
 
         return redirect()->route('login');
 
+    }
+
+    private function synchroniserDocumentsCandidat($candidatConcours, $idSession): void
+    {
+        $documentsCandidat = Document::where('candidats_id', $candidatConcours->idCandidat)
+            ->pluck('dossiersCandidature_id')
+            ->toArray();
+
+        $documentsACharger = Dossierscandidature::where('sessions_id', $idSession)
+            ->pluck('id')
+            ->toArray();
+
+        $documentsManquants = array_diff($documentsACharger, $documentsCandidat);
+
+        foreach ($documentsManquants as $idDossier) {
+            Document::create([
+                'candidats_id' => $candidatConcours->idCandidat,
+                'dossiersCandidature_id' => $idDossier,
+            ]);
+        }
     }
 
     private function creercandidat($personne, $idsession)

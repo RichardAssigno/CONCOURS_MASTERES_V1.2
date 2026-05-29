@@ -46,3 +46,67 @@
 
 <script src="{{asset("assets/js/loader.js")}}"></script>
 
+<script>
+    function switchConcoursSession(idSession) {
+        if (!idSession) {
+            return;
+        }
+
+        if (typeof showLoader === 'function') {
+            showLoader('Changement de session...');
+        }
+
+        $.ajax({
+            url: "{{ route('changer.session') }}",
+            type: "POST",
+            data: {
+                idSession: idSession,
+                _token: "{{ csrf_token() }}"
+            },
+            success: function (response) {
+                if (typeof hideLoader === 'function') {
+                    hideLoader();
+                }
+
+                if (response.success) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: response.message || 'Session changee',
+                            showConfirmButton: false,
+                            timer: 1200
+                        });
+                    }
+
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 700);
+                }
+            },
+            error: function () {
+                if (typeof hideLoader === 'function') {
+                    hideLoader();
+                }
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: "Echec",
+                        text: "Impossible de changer de session.",
+                        icon: "error"
+                    });
+                }
+            }
+        });
+    }
+
+    $(document).on('change', '.js-session-switcher', function () {
+        switchConcoursSession($(this).val());
+    });
+
+    $(document).on('click', '.change-session', function (e) {
+        e.preventDefault();
+        switchConcoursSession($(this).data('id'));
+    });
+</script>

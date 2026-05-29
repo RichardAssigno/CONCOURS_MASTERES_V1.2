@@ -37,6 +37,7 @@ Route::get("/connecter/etudiant/{idCandidatSession}", [\App\Http\Controllers\Aut
 Route::middleware('auth:personne')->group(function () {
 
     Route::get('tableau-de-bord', [TableaudebordController::class, 'index'])->name('tableaudebord.index');
+    Route::get('profil', [TableaudebordController::class, 'profil'])->name('profil.index');
     Route::get('se-déconnecter', [AuthController::class, 'logout'])->name('logout');
 
     Route::post('/connecte-a-un-concours', [AuthController::class, 'connexionconcours'])->name('changer.session');
