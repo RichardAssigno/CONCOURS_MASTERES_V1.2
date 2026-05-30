@@ -105,6 +105,11 @@
         switchConcoursSession($(this).val());
     });
 
+    $(document).on('change', '.js-annee-switcher', function () {
+        const annee = encodeURIComponent($(this).val());
+        window.location.href = "{{ route('tableaudebord.index') }}" + "?annee=" + annee;
+    });
+
     $(document).on('click', '.change-session', function (e) {
         e.preventDefault();
         switchConcoursSession($(this).data('id'));

@@ -43,10 +43,26 @@ class TableaudebordController extends Controller
     private function dashboardPayload(string $titre): array
     {
         $idPersonne = Auth::guard('personne')->id();
-        $listeconcours = Concours::ConcoursCandidats($idPersonne);
+        $tousLesConcoursPostules = Concours::ConcoursCandidats($idPersonne);
+        $tousLesConcoursOuverts = Concours::listeconcoursouvert();
+        $anneesDisponibles = $this->anneesDisponibles($tousLesConcoursPostules, $tousLesConcoursOuverts);
+        $anneeSelectionnee = $this->anneeSelectionnee($anneesDisponibles);
 
-        if (!session()->has('sessions') && $listeconcours->isNotEmpty()) {
+        $listeconcours = $tousLesConcoursPostules
+            ->filter(fn ($concours) => (string) $concours->libelleAnnee === (string) $anneeSelectionnee)
+            ->values();
+
+        if ($listeconcours->isNotEmpty() && !$listeconcours->pluck('idSession')->contains((int) session('sessions'))) {
             $sessionParDefaut = $listeconcours->first()->idSession;
+            $candidatConcours = Concours::getConcoursCandidat($idPersonne, $sessionParDefaut);
+
+            if (!is_null($candidatConcours)) {
+                $this->mettreConcoursEnSession($candidatConcours, $sessionParDefaut);
+            }
+        }
+
+        if (!session()->has('sessions') && $tousLesConcoursPostules->isNotEmpty()) {
+            $sessionParDefaut = $tousLesConcoursPostules->first()->idSession;
             $candidatConcours = Concours::getConcoursCandidat($idPersonne, $sessionParDefaut);
 
             if (!is_null($candidatConcours)) {
@@ -67,9 +83,11 @@ class TableaudebordController extends Controller
         $choix = Choix::getChoixCandidat($idPersonne, $sessionId);
         $documentscandidat = Document::getDocumentsCandidat($personnes->idCandidat);
         $documents = Document::getDocuments($sessionId);
-        $concoursOuverts = Concours::listeconcoursouvert();
+        $concoursOuverts = $this->anneeEstCourante($anneeSelectionnee)
+            ? $tousLesConcoursOuverts->filter(fn ($concours) => (string) $concours->libelleAnnee === (string) $anneeSelectionnee)->values()
+            : collect();
 
-        $sessionsPostulees = $listeconcours->pluck('idSession')->unique()->values();
+        $sessionsPostulees = $tousLesConcoursPostules->pluck('idSession')->unique()->values();
         $concoursOuverts = $concoursOuverts->map(function ($concours) use ($sessionsPostulees) {
             $concours->dejaPostule = $sessionsPostulees->contains($concours->idSession);
             return $concours;
@@ -152,6 +170,9 @@ class TableaudebordController extends Controller
         return [
             'titre' => $titre,
             'personne' => $personnes,
+            'anneeSelectionnee' => $anneeSelectionnee,
+            'anneesDisponibles' => $anneesDisponibles,
+            'anneeEstCourante' => $this->anneeEstCourante($anneeSelectionnee),
             'listeconcours' => $listeconcours,
             'concoursOuverts' => $concoursOuverts,
             'choix' => $choix,
@@ -170,6 +191,50 @@ class TableaudebordController extends Controller
             'progression' => $progression,
             'prochaineEtape' => $prochaineEtape,
         ];
+    }
+
+    private function anneesDisponibles($concoursPostules, $concoursOuverts)
+    {
+        return $concoursPostules
+            ->pluck('libelleAnnee')
+            ->merge($concoursOuverts->pluck('libelleAnnee'))
+            ->filter()
+            ->unique()
+            ->sortDesc()
+            ->values();
+    }
+
+    private function anneeSelectionnee($anneesDisponibles): ?string
+    {
+        $anneeDemandee = request('annee');
+
+        if ($anneeDemandee && $anneesDisponibles->contains($anneeDemandee)) {
+            session()->put('annee_selectionnee', $anneeDemandee);
+            return $anneeDemandee;
+        }
+
+        if (session()->has('annee_selectionnee') && $anneesDisponibles->contains(session('annee_selectionnee'))) {
+            return session('annee_selectionnee');
+        }
+
+        $anneeCourante = (string) now()->year;
+        $anneeParDefaut = $anneesDisponibles->first(fn ($annee) => str_contains((string) $annee, $anneeCourante))
+            ?? $anneesDisponibles->first();
+
+        if ($anneeParDefaut) {
+            session()->put('annee_selectionnee', $anneeParDefaut);
+        }
+
+        return $anneeParDefaut;
+    }
+
+    private function anneeEstCourante(?string $annee): bool
+    {
+        if (is_null($annee)) {
+            return false;
+        }
+
+        return str_contains((string) $annee, (string) now()->year);
     }
 
     private function infosPersonnellesCompletes($candidat): bool

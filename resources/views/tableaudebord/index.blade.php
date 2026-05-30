@@ -32,14 +32,14 @@
                     $photo = session()->has('photo_path') ? asset('storage/' . session('photo_path')) : asset('assets/images/avatar.png');
                     $nomComplet = trim(($personne->prenoms ?? '') . ' ' . ($personne->nom ?? ''));
                     $totalDocuments = $documents->count();
-                    $sessionLabel = $currentConcours ? $currentConcours->libelleConcours . ' - ' . $currentConcours->codeConcours : 'Session courante';
+                    $sessionLabel = $anneeSelectionnee ? 'Session ' . $anneeSelectionnee : 'Session courante';
                 @endphp
 
                 <div class="cm-hero mb-4">
                     <div class="cm-hero-content">
                         <span class="cm-eyebrow">Espace candidat</span>
                         <h1>Bonjour {{ mb_strtoupper($personne->prenoms ?? 'Candidat') }}</h1>
-                        <p>{{ $sessionLabel }}. Suivez votre inscription, changez de session et postulez aux concours ouverts depuis ce tableau.</p>
+                        <p>{{ $sessionLabel }}. Suivez votre inscription et retrouvez les concours lies a l'annee selectionnee.</p>
                         <div class="cm-hero-actions">
                             @if($prochaineEtape)
                                 <a href="{{ $prochaineEtape['route'] }}" class="btn btn-light">
@@ -52,9 +52,9 @@
                                     Telecharger ma fiche
                                 </a>
                             @endif
-                            <a href="#concours-ouverts" class="btn btn-outline-light">
+                            <a href="#concours-annee" class="btn btn-outline-light">
                                 <i class="mdi mdi-plus-circle-outline me-1"></i>
-                                Postuler a un autre concours
+                                Voir les concours
                             </a>
                         </div>
                     </div>
@@ -112,108 +112,131 @@
 
                 <div class="row g-4">
                     <div class="col-xl-8">
-                        <section class="cm-section" id="concours-ouverts">
-                            <div class="cm-section-header">
+                        <section class="cm-section cm-contest-toggle-section" id="concours-annee">
+                            <button class="cm-toggle-header" type="button" data-bs-toggle="collapse" data-bs-target="#concours-annee-content" aria-expanded="false" aria-controls="concours-annee-content">
                                 <div>
-                                    <span class="cm-eyebrow">Inscriptions ouvertes</span>
-                                    <h2>Concours disponibles</h2>
+                                    <span class="cm-eyebrow">Concours</span>
+                                    <h2>{{ $sessionLabel }}</h2>
+                                    <p>{{ $listeconcours->count() }} candidature(s){{ $anneeEstCourante ? ' et ' . $concoursOuverts->count() . ' concours ouvert(s)' : '' }}</p>
                                 </div>
-                                <div class="cm-search">
-                                    <i class="mdi mdi-magnify"></i>
-                                    <input id="concours-filter" type="text" class="form-control" placeholder="Filtrer un concours">
-                                </div>
-                            </div>
+                                <span class="cm-toggle-icon">
+                                    <i class="mdi mdi-chevron-down"></i>
+                                </span>
+                            </button>
 
-                            <div class="row g-3">
-                                @forelse($concoursOuverts as $concours)
-                                    @php
-                                        $isCurrent = (int) $concours->idSession === (int) session('sessions');
-                                    @endphp
-                                    <div class="col-md-6 col-xxl-4 card-filter">
-                                        <article class="cm-contest-card h-100">
-                                            <div class="cm-contest-logo">
-                                                <img src="{{ asset('assets/images/logoinphb.png') }}" alt="INP-HB">
-                                                <span>{{ $concours->libelleAnnee ?? '' }}</span>
-                                            </div>
-                                            <h3>{{ $concours->libelleConcours }}</h3>
-                                            <p>{{ $concours->codeConcours }} - {{ $concours->etapeConcours ?? 'Inscription ouverte' }}</p>
-                                            <div class="cm-contest-actions">
-                                                @if($concours->dejaPostule)
-                                                    <span class="badge bg-success-subtle text-success">Deja postule</span>
+                            <div id="concours-annee-content" class="collapse">
+                                <div class="cm-toggle-body">
+                                    <div class="cm-section-header">
+                                        <div>
+                                            <span class="cm-eyebrow">Recherche</span>
+                                            <h2>Liste des concours</h2>
+                                        </div>
+                                        <div class="cm-search">
+                                            <i class="mdi mdi-magnify"></i>
+                                            <input id="concours-filter" type="text" class="form-control" placeholder="Filtrer un concours">
+                                        </div>
+                                    </div>
+
+                                    <div class="cm-subsection-title">
+                                        <i class="mdi mdi-clipboard-check-outline"></i>
+                                        <span>Mes concours postules</span>
+                                    </div>
+
+                                    <div class="cm-application-list mb-4">
+                                        @forelse($listeconcours as $concours)
+                                            @php
+                                                $isCurrent = (int) $concours->idSession === (int) session('sessions');
+                                            @endphp
+                                            <div class="cm-application-item card-filter">
+                                                <div class="cm-application-main">
+                                                    <div class="cm-application-icon">
+                                                        <i class="mdi mdi-school-outline"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h3>{{ $concours->libelleConcours }} - {{ $concours->codeConcours }}</h3>
+                                                        <p>Session {{ $concours->libelleAnnee ?? '' }} - Matricule {{ $concours->matricule ?? 'en attente' }}</p>
+                                                    </div>
+                                                </div>
+                                                <div class="cm-application-actions">
                                                     @if($isCurrent)
+                                                        <span class="badge bg-primary">Session active</span>
                                                         @if($prochaineEtape)
-                                                            <a href="{{ $prochaineEtape['route'] }}" class="btn btn-sm btn-success">Continuer</a>
+                                                            <a href="{{ $prochaineEtape['route'] }}" class="btn btn-sm btn-primary">Continuer</a>
                                                         @else
-                                                            <a href="{{ route('fiche.telecharger') }}" class="btn btn-sm btn-success">Fiche</a>
+                                                            <a href="{{ route('fiche.telecharger') }}" class="btn btn-sm btn-success">Imprimer</a>
                                                         @endif
                                                     @else
                                                         <button type="button" class="btn btn-sm btn-outline-primary change-session" data-id="{{ $concours->idSession }}">
-                                                            Ouvrir
+                                                            Changer de session
                                                         </button>
                                                     @endif
-                                                @else
-                                                    <button type="button" class="btn btn-sm btn-primary btnConnexionConcours" data-id="{{ $concours->idSession }}">
-                                                        Postuler
-                                                    </button>
-                                                @endif
+                                                </div>
                                             </div>
-                                        </article>
+                                        @empty
+                                            <div class="cm-empty-state">
+                                                <i class="mdi mdi-clipboard-text-off-outline"></i>
+                                                <p>Vous n'avez pas encore de candidature pour cette session.</p>
+                                            </div>
+                                        @endforelse
                                     </div>
-                                @empty
-                                    <div class="col-12">
+
+                                    @if($anneeEstCourante)
+                                        <div class="cm-subsection-title">
+                                            <i class="mdi mdi-bullhorn-outline"></i>
+                                            <span>Concours ouverts</span>
+                                        </div>
+
+                                        <div class="row g-3">
+                                            @forelse($concoursOuverts as $concours)
+                                                @php
+                                                    $isCurrent = (int) $concours->idSession === (int) session('sessions');
+                                                @endphp
+                                                <div class="col-md-6 col-xxl-4 card-filter">
+                                                    <article class="cm-contest-card h-100">
+                                                        <div class="cm-contest-logo">
+                                                            <img src="{{ asset('assets/images/logoinphb.png') }}" alt="INP-HB">
+                                                            <span>{{ $concours->libelleAnnee ?? '' }}</span>
+                                                        </div>
+                                                        <h3>{{ $concours->libelleConcours }}</h3>
+                                                        <p>{{ $concours->codeConcours }} - {{ $concours->etapeConcours ?? 'Inscription ouverte' }}</p>
+                                                        <div class="cm-contest-actions">
+                                                            @if($concours->dejaPostule)
+                                                                <span class="badge bg-success-subtle text-success">Deja postule</span>
+                                                                @if($isCurrent)
+                                                                    @if($prochaineEtape)
+                                                                        <a href="{{ $prochaineEtape['route'] }}" class="btn btn-sm btn-success">Continuer</a>
+                                                                    @else
+                                                                        <a href="{{ route('fiche.telecharger') }}" class="btn btn-sm btn-success">Fiche</a>
+                                                                    @endif
+                                                                @else
+                                                                    <button type="button" class="btn btn-sm btn-outline-primary change-session" data-id="{{ $concours->idSession }}">
+                                                                        Ouvrir
+                                                                    </button>
+                                                                @endif
+                                                            @else
+                                                                <button type="button" class="btn btn-sm btn-primary btnConnexionConcours" data-id="{{ $concours->idSession }}">
+                                                                    Postuler
+                                                                </button>
+                                                            @endif
+                                                        </div>
+                                                    </article>
+                                                </div>
+                                            @empty
+                                                <div class="col-12">
+                                                    <div class="cm-empty-state">
+                                                        <i class="mdi mdi-calendar-remove-outline"></i>
+                                                        <p>Aucun concours ouvert pour l'annee en cours.</p>
+                                                    </div>
+                                                </div>
+                                            @endforelse
+                                        </div>
+                                    @else
                                         <div class="cm-empty-state">
-                                            <i class="mdi mdi-calendar-remove-outline"></i>
-                                            <p>Aucun concours ouvert pour le moment.</p>
+                                            <i class="mdi mdi-lock-clock-outline"></i>
+                                            <p>Les concours ouverts s'affichent uniquement lorsque la session selectionnee correspond a l'annee en cours.</p>
                                         </div>
-                                    </div>
-                                @endforelse
-                            </div>
-                        </section>
-
-                        <section class="cm-section">
-                            <div class="cm-section-header">
-                                <div>
-                                    <span class="cm-eyebrow">Session en cours</span>
-                                    <h2>Mes candidatures</h2>
+                                    @endif
                                 </div>
-                            </div>
-
-                            <div class="cm-application-list">
-                                @forelse($listeconcours as $concours)
-                                    @php
-                                        $isCurrent = (int) $concours->idSession === (int) session('sessions');
-                                    @endphp
-                                    <div class="cm-application-item">
-                                        <div class="cm-application-main">
-                                            <div class="cm-application-icon">
-                                                <i class="mdi mdi-school-outline"></i>
-                                            </div>
-                                            <div>
-                                                <h3>{{ $concours->libelleConcours }} - {{ $concours->codeConcours }}</h3>
-                                                <p>Session {{ $concours->libelleAnnee ?? '' }} - Matricule {{ $concours->matricule ?? 'en attente' }}</p>
-                                            </div>
-                                        </div>
-                                        <div class="cm-application-actions">
-                                            @if($isCurrent)
-                                                <span class="badge bg-primary">Session active</span>
-                                                @if($prochaineEtape)
-                                                    <a href="{{ $prochaineEtape['route'] }}" class="btn btn-sm btn-primary">Continuer</a>
-                                                @else
-                                                    <a href="{{ route('fiche.telecharger') }}" class="btn btn-sm btn-success">Imprimer</a>
-                                                @endif
-                                            @else
-                                                <button type="button" class="btn btn-sm btn-outline-primary change-session" data-id="{{ $concours->idSession }}">
-                                                    Changer de session
-                                                </button>
-                                            @endif
-                                        </div>
-                                    </div>
-                                @empty
-                                    <div class="cm-empty-state">
-                                        <i class="mdi mdi-clipboard-text-off-outline"></i>
-                                        <p>Vous n'avez pas encore de candidature pour la session courante.</p>
-                                    </div>
-                                @endforelse
                             </div>
                         </section>
 

@@ -1,6 +1,21 @@
 @php
     $topbarUser = Auth::guard('personne')->user();
     $topbarConcours = $topbarUser ? \App\Models\Concours::ConcoursCandidats($topbarUser->id) : collect();
+    $topbarConcoursOuverts = \App\Models\Concours::listeconcoursouvert();
+    $topbarAnnees = $topbarConcours
+        ->pluck('libelleAnnee')
+        ->merge($topbarConcoursOuverts->pluck('libelleAnnee'))
+        ->filter()
+        ->unique()
+        ->sortDesc()
+        ->values();
+    $topbarAnneeCourante = (string) now()->year;
+    $topbarAnneeDemandee = request('annee');
+    $topbarAnneeSelectionnee = $topbarAnneeDemandee && $topbarAnnees->contains($topbarAnneeDemandee)
+        ? $topbarAnneeDemandee
+        : (session('annee_selectionnee')
+            ?? $topbarAnnees->first(fn ($annee) => str_contains((string) $annee, $topbarAnneeCourante))
+            ?? $topbarAnnees->first());
     $currentConcours = session('candidatConcours');
     $pageTitle = $currentConcours
         ? $currentConcours->libelleConcours . ' - ' . $currentConcours->codeConcours . ' | ' . ($titre ?? 'Tableau de Bord')
@@ -41,13 +56,13 @@
         </div>
 
         <div class="d-flex align-items-center">
-            @if($topbarConcours->isNotEmpty())
+            @if($topbarAnnees->isNotEmpty())
                 <div class="cm-topbar-session">
-                    <label for="topbar-session">Session</label>
-                    <select id="topbar-session" class="form-select form-select-sm js-session-switcher">
-                        @foreach($topbarConcours as $concours)
-                            <option value="{{ $concours->idSession }}" {{ (int) $concours->idSession === (int) session('sessions') ? 'selected' : '' }}>
-                                {{ $concours->codeConcours }} - {{ $concours->libelleAnnee ?? 'Session' }}
+                    <label for="topbar-session">Annee</label>
+                    <select id="topbar-session" class="form-select form-select-sm js-annee-switcher">
+                        @foreach($topbarAnnees as $annee)
+                            <option value="{{ $annee }}" {{ (string) $annee === (string) $topbarAnneeSelectionnee ? 'selected' : '' }}>
+                                {{ $annee }}
                             </option>
                         @endforeach
                     </select>
