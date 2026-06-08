@@ -87,6 +87,11 @@
                                             <div class="row">
                                                 <div class="col-lg-12">
 
+                                                    @if($infos->isEmpty() || $typesmoyennes->isEmpty())
+                                                        <div class="alert alert-warning mb-0">
+                                                            Aucune matiere n'est configuree pour ce concours. Veuillez contacter l'administration.
+                                                        </div>
+                                                    @else
                                                     <div class="form-note table-responsive">
                                                         <table class="table table-striped">
                                                             <thead>
@@ -121,6 +126,7 @@
                                                             </tbody>
                                                         </table>
                                                     </div>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>
