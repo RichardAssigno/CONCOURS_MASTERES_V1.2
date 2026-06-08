@@ -83,9 +83,7 @@ class TableaudebordController extends Controller
         $choix = Choix::getChoixCandidat($idPersonne, $sessionId);
         $documentscandidat = Document::getDocumentsCandidat($personnes->idCandidat);
         $documents = Document::getDocuments($sessionId);
-        $concoursOuverts = $this->anneeEstCourante($anneeSelectionnee)
-            ? $tousLesConcoursOuverts->filter(fn ($concours) => (string) $concours->libelleAnnee === (string) $anneeSelectionnee)->values()
-            : collect();
+        $concoursOuverts = $tousLesConcoursOuverts->values();
 
         $sessionsPostulees = $tousLesConcoursPostules->pluck('idSession')->unique()->values();
         $concoursOuverts = $concoursOuverts->map(function ($concours) use ($sessionsPostulees) {
