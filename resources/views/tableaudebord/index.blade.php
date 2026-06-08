@@ -260,6 +260,54 @@
                             </div>
                         </section>
 
+                        @if((string) session('notes') === '1')
+                            <section class="cm-section cm-section-compact">
+                                <div class="cm-section-header">
+                                    <div>
+                                        <span class="cm-eyebrow">{{ $notesCompletes ? 'Renseignees' : 'A completer' }}</span>
+                                        <h2>Mes notes</h2>
+                                    </div>
+                                    <a href="{{ route('notes.index') }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="mdi mdi-pencil-outline me-1"></i>
+                                        Modifier
+                                    </a>
+                                </div>
+
+                                @if($infos->isEmpty() || $typesmoyennes->isEmpty())
+                                    <div class="cm-empty-state">
+                                        <i class="mdi mdi-table-off"></i>
+                                        <p>Aucune matiere n'est configuree pour ce concours.</p>
+                                    </div>
+                                @else
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-striped align-middle mb-0">
+                                            <thead>
+                                            <tr>
+                                                <th>Matiere</th>
+                                                @foreach($typesmoyennes as $libelleType)
+                                                    <th class="text-center">{{ $libelleType }}</th>
+                                                @endforeach
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            @foreach($infos as $discipline => $notes)
+                                                <tr>
+                                                    <td><strong>{{ $discipline }}</strong></td>
+                                                    @foreach($typesmoyennes as $idType => $libelleType)
+                                                        @php
+                                                            $note = $notes->firstWhere('idTypemoyenne', $idType);
+                                                        @endphp
+                                                        <td class="text-center">{{ $note?->moyenne ?? '-' }}</td>
+                                                    @endforeach
+                                                </tr>
+                                            @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @endif
+                            </section>
+                        @endif
+
                         @if($documentscandidat->isNotEmpty())
                             <section class="cm-section cm-section-compact">
                                 <div class="cm-section-header">
