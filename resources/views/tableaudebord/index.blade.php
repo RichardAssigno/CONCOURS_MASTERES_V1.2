@@ -259,6 +259,26 @@
                                 @endforeach
                             </div>
                         </section>
+
+                        @if($documentscandidat->isNotEmpty())
+                            <section class="cm-section cm-section-compact">
+                                <div class="cm-section-header">
+                                    <div>
+                                        <span class="cm-eyebrow">Charges</span>
+                                        <h2>Mes documents</h2>
+                                    </div>
+                                    <span class="badge bg-primary">{{ $nbrdoc }} fichier(s)</span>
+                                </div>
+                                <ul class="cm-document-list">
+                                    @foreach($documentscandidat as $document)
+                                        <li>
+                                            <i class="mdi mdi-file-document-check-outline"></i>
+                                            <span>{{ mb_strtoupper($document->libelleDocumentdossier) }}</span>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </section>
+                        @endif
                     </div>
 
                     <div class="col-xl-4">
@@ -329,25 +349,6 @@
                             </section>
                         @endif
 
-                        @if($documentscandidat->isNotEmpty())
-                            <section class="cm-section cm-section-compact">
-                                <div class="cm-section-header">
-                                    <div>
-                                        <span class="cm-eyebrow">Charges</span>
-                                        <h2>Mes documents</h2>
-                                    </div>
-                                    <span class="badge bg-primary">{{ $nbrdoc }} fichier(s)</span>
-                                </div>
-                                <ul class="cm-document-list">
-                                    @foreach($documentscandidat as $document)
-                                        <li>
-                                            <i class="mdi mdi-file-document-check-outline"></i>
-                                            <span>{{ mb_strtoupper($document->libelleDocumentdossier) }}</span>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </section>
-                        @endif
                     </div>
                 </div>
             </div>

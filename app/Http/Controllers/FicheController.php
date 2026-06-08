@@ -67,6 +67,10 @@ class FicheController extends Controller
             'isRemoteEnabled' => true, // 👈 autorise les images distantes
         ])->loadView('fiche.index', [
             'candidat' => $personnes,
+            'photoCandidat' => $this->imageDataUri(
+                $personnes->photo_path ? storage_path('app/public/' . $personnes->photo_path) : null,
+                public_path('assets/images/avatar.png')
+            ),
             'qrcodeData' => self::creationQrCode($personnes),
             'candidatConcours' => Concours::getConcoursCandidat(Auth::guard('personne')->id(), session("sessions")),
             'listechoix' => Choix::getChoixCandidat(Auth::guard("personne")->id(), session("sessions")),
@@ -81,6 +85,14 @@ class FicheController extends Controller
         $nompdf = $personnes->matricule . "_" . Carbon::now()->timestamp;
 
         return $pdf->download($nompdf . '.pdf');
+    }
+
+    private function imageDataUri(?string $imagePath, string $defaultPath): string
+    {
+        $path = $imagePath && File::exists($imagePath) ? $imagePath : $defaultPath;
+        $mimeType = File::mimeType($path) ?: 'image/png';
+
+        return 'data:' . $mimeType . ';base64,' . base64_encode(File::get($path));
     }
 
     public static function creationQrCode($candidat)

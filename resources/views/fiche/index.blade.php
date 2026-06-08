@@ -186,9 +186,9 @@
             <!-- Colonne de la photo -->
             <td style="vertical-align: top; width: 30%; text-align: center;">
                 <div style="margin-top: 41px;">
-                    <img src="{{ session()->has("photo_path") ? asset('storage/'.session("photo_path")) : asset("assets/images/avatar.png")}}"
+                    <img src="{{ $photoCandidat }}"
                      alt="Photo du candidat"
-                     style="width:100px; height:auto; ">
+                     style="width:100px; height:100px; object-fit: cover;">
                 </div>
             </td>
         </tr>
