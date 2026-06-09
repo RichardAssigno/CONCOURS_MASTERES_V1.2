@@ -38,6 +38,7 @@ Route::middleware('auth:personne')->group(function () {
 
     Route::get('tableau-de-bord', [TableaudebordController::class, 'index'])->name('tableaudebord.index');
     Route::get('profil', [TableaudebordController::class, 'profil'])->name('profil.index');
+    Route::post('profil/mot-de-passe', [TableaudebordController::class, 'modifierMotDePasse'])->name('profil.password.update');
     Route::get('se-déconnecter', [AuthController::class, 'logout'])->name('logout');
 
     Route::post('/connecte-a-un-concours', [AuthController::class, 'connexionconcours'])->name('changer.session');

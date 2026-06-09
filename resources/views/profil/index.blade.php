@@ -21,6 +21,13 @@
                     $totalDocuments = $documents->count();
                 @endphp
 
+                @if(session('succes'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ session('succes') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
                 <div class="cm-profile-summary mb-4">
                     <aside class="cm-profile-card mb-0">
                         <div class="cm-profile-cover"></div>
@@ -156,6 +163,40 @@
                     </div>
 
                     <div class="col-xl-5">
+                        <section class="cm-section">
+                            <div class="cm-section-header">
+                                <div>
+                                    <span class="cm-eyebrow">Securite</span>
+                                    <h2>Mot de passe</h2>
+                                </div>
+                            </div>
+                            <form action="{{ route('profil.password.update') }}" method="post">
+                                @csrf
+                                <div class="mb-3">
+                                    <label for="current_password" class="form-label">Mot de passe actuel</label>
+                                    <input type="password" class="form-control @error('current_password') is-invalid @enderror" id="current_password" name="current_password" autocomplete="current-password">
+                                    @error('current_password')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">Nouveau mot de passe</label>
+                                    <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" autocomplete="new-password">
+                                    @error('password')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="mb-3">
+                                    <label for="password_confirmation" class="form-label">Confirmation</label>
+                                    <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" autocomplete="new-password">
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="mdi mdi-lock-reset me-1"></i>
+                                    Modifier le mot de passe
+                                </button>
+                            </form>
+                        </section>
+
                         <section class="cm-section">
                             <div class="cm-section-header">
                                 <div>

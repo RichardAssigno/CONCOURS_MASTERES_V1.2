@@ -10,6 +10,7 @@ use App\Models\Personne;
 use App\Services\RedirecteurService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class TableaudebordController extends Controller
 {
@@ -28,6 +29,32 @@ class TableaudebordController extends Controller
     public function profil()
     {
         return view('profil.index', $this->dashboardPayload("Profil"));
+    }
+
+    public function modifierMotDePasse(Request $request)
+    {
+        $data = $request->validate([
+            'current_password' => 'required',
+            'password' => 'required|confirmed|min:8',
+        ], [
+            'current_password.required' => 'Le mot de passe actuel est obligatoire.',
+            'password.required' => 'Le nouveau mot de passe est obligatoire.',
+            'password.confirmed' => 'Veuillez confirmer le nouveau mot de passe correctement.',
+            'password.min' => 'Le nouveau mot de passe doit contenir au moins 8 caracteres.',
+        ]);
+
+        $personne = Personne::query()->findOrFail(Auth::guard('personne')->id());
+
+        if (!Hash::check($data['current_password'], $personne->password)) {
+            return back()
+                ->withErrors(['current_password' => 'Le mot de passe actuel est incorrect.']);
+        }
+
+        $personne->update([
+            'password' => Hash::make($data['password']),
+        ]);
+
+        return back()->with('succes', 'Mot de passe modifie avec succes.');
     }
 
     public function recupererconcours(Request $request)
