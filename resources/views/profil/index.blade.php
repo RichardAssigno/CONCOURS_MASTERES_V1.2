@@ -21,13 +21,6 @@
                     $totalDocuments = $documents->count();
                 @endphp
 
-                @if(session('succes'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        {{ session('succes') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
-
                 <div class="cm-profile-summary mb-4">
                     <aside class="cm-profile-card mb-0">
                         <div class="cm-profile-cover"></div>
@@ -170,27 +163,21 @@
                                     <h2>Mot de passe</h2>
                                 </div>
                             </div>
-                            <form action="{{ route('profil.password.update') }}" method="post">
+                            <form id="passwordForm" action="{{ route('profil.password.update') }}" method="post">
                                 @csrf
                                 <div class="mb-3">
                                     <label for="current_password" class="form-label">Mot de passe actuel</label>
-                                    <input type="password" class="form-control @error('current_password') is-invalid @enderror" id="current_password" name="current_password" autocomplete="current-password">
-                                    @error('current_password')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                    <input type="password" class="form-control" id="current_password" name="current_password" autocomplete="current-password">
                                 </div>
                                 <div class="mb-3">
                                     <label for="password" class="form-label">Nouveau mot de passe</label>
-                                    <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" autocomplete="new-password">
-                                    @error('password')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                    <input type="password" class="form-control" id="password" name="password" autocomplete="new-password">
                                 </div>
                                 <div class="mb-3">
                                     <label for="password_confirmation" class="form-label">Confirmation</label>
                                     <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" autocomplete="new-password">
                                 </div>
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary" id="passwordSubmitButton">
                                     <i class="mdi mdi-lock-reset me-1"></i>
                                     Modifier le mot de passe
                                 </button>
@@ -231,5 +218,76 @@
 </div>
 
 @include("partials.js")
+<script>
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        icon: "success",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+    })
+
+    $('#passwordForm').on('submit', function (e) {
+        e.preventDefault();
+
+        showLoader("Modification en cours...");
+
+        let form = $(this);
+        let submitButton = $('#passwordSubmitButton');
+
+        submitButton.prop('disabled', true);
+
+        $.ajax({
+            url: form.attr('action'),
+            type: "POST",
+            data: form.serialize(),
+            success: function (response) {
+                hideLoader();
+                submitButton.prop('disabled', false);
+
+                if (response.success) {
+                    Toast.fire({
+                        title: response.success,
+                        position: "top-end",
+                        icon: "success",
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+
+                    form[0].reset();
+                } else {
+                    Swal.fire({
+                        title: "Echec",
+                        text: response.message || "Impossible de modifier le mot de passe.",
+                        icon: "error"
+                    });
+                }
+            },
+            error: function (xhr) {
+                hideLoader();
+                submitButton.prop('disabled', false);
+
+                let errorHtml = "Une erreur est survenue.";
+
+                if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                    errorHtml = Object.values(xhr.responseJSON.errors).map(e => e.join("\n")).join("\n");
+                } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorHtml = xhr.responseJSON.message;
+                }
+
+                Swal.fire({
+                    title: "Erreur!",
+                    text: errorHtml,
+                    icon: "error"
+                });
+            }
+        });
+    });
+</script>
 </body>
 </html>

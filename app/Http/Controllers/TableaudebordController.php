@@ -46,15 +46,20 @@ class TableaudebordController extends Controller
         $personne = Personne::query()->findOrFail(Auth::guard('personne')->id());
 
         if (!Hash::check($data['current_password'], $personne->password)) {
-            return back()
-                ->withErrors(['current_password' => 'Le mot de passe actuel est incorrect.']);
+            return response()->json([
+                'errors' => [
+                    'current_password' => ['Le mot de passe actuel est incorrect.'],
+                ],
+            ], 422);
         }
 
         $personne->update([
             'password' => Hash::make($data['password']),
         ]);
 
-        return back()->with('succes', 'Mot de passe modifie avec succes.');
+        return response()->json([
+            'success' => 'Mot de passe modifie avec succes.',
+        ]);
     }
 
     public function recupererconcours(Request $request)
