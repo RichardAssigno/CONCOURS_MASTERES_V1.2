@@ -153,6 +153,31 @@
                                 @endforeach
                             </div>
                         </section>
+
+                        <section class="cm-section mt-4">
+                            <div class="cm-section-header">
+                                <div>
+                                    <span class="cm-eyebrow">Pieces</span>
+                                    <h2>Documents charges</h2>
+                                </div>
+                                <span class="badge bg-primary">{{ $nbrdoc }} / {{ $totalDocuments }}</span>
+                            </div>
+                            @if($documentscandidat->isNotEmpty())
+                                <ul class="cm-document-list">
+                                    @foreach($documentscandidat as $document)
+                                        <li>
+                                            <i class="mdi mdi-file-document-check-outline"></i>
+                                            <span>{{ mb_strtoupper($document->libelleDocumentdossier) }}</span>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @else
+                                <div class="cm-empty-state">
+                                    <i class="mdi mdi-folder-upload-outline"></i>
+                                    <p>Aucun document charge pour cette session.</p>
+                                </div>
+                            @endif
+                        </section>
                     </div>
 
                     <div class="col-xl-5">
@@ -184,30 +209,6 @@
                             </form>
                         </section>
 
-                        <section class="cm-section">
-                            <div class="cm-section-header">
-                                <div>
-                                    <span class="cm-eyebrow">Pieces</span>
-                                    <h2>Documents charges</h2>
-                                </div>
-                                <span class="badge bg-primary">{{ $nbrdoc }} / {{ $totalDocuments }}</span>
-                            </div>
-                            @if($documentscandidat->isNotEmpty())
-                                <ul class="cm-document-list">
-                                    @foreach($documentscandidat as $document)
-                                        <li>
-                                            <i class="mdi mdi-file-document-check-outline"></i>
-                                            <span>{{ mb_strtoupper($document->libelleDocumentdossier) }}</span>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            @else
-                                <div class="cm-empty-state">
-                                    <i class="mdi mdi-folder-upload-outline"></i>
-                                    <p>Aucun document charge pour cette session.</p>
-                                </div>
-                            @endif
-                        </section>
                     </div>
                 </div>
             </div>
