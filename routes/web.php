@@ -8,6 +8,7 @@ use App\Http\Controllers\FicheController;
 use App\Http\Controllers\FormationsController;
 use App\Http\Controllers\InformationsPersonnellesController;
 use App\Http\Controllers\NotesController;
+use App\Http\Controllers\ResultatsController;
 use App\Http\Controllers\TableaudebordController;
 use App\Http\Controllers\TransfertDossierController;
 use App\Http\Middleware\Cors;
@@ -19,6 +20,7 @@ Route::get('/', function () {return Auth::guard('personne')->check() ? redirect(
 
 
 Route::get('login', [\App\Http\Controllers\AuthController::class, 'login'])->name('login');
+Route::get('/resultats', [ResultatsController::class, 'index'])->name('resultats.index');
 Route::post('/login-concours', [\App\Http\Controllers\AuthController::class, 'recupererconcours'])->name("login.concours");
 Route::get('/recuperer-concours', [\App\Http\Controllers\ConcoursController::class, 'recupererconcours'])->name("concours.recupererconcours");
 Route::get('/login/{idSession}', [\App\Http\Controllers\AuthController::class, 'index'])->name('login.index');

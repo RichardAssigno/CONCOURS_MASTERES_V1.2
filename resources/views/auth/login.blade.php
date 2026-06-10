@@ -79,6 +79,12 @@
                                                         <div class="mb-3">
                                                             <button class="btn btn-primary w-100 waves-effect waves-light" type="submit">Se connecter</button>
                                                         </div>
+                                                        <div class="mb-3">
+                                                            <a class="btn btn-outline-primary w-100" href="{{ route('resultats.index') }}">
+                                                                <i class="mdi mdi-magnify me-1"></i>
+                                                                Consulter les résultats
+                                                            </a>
+                                                        </div>
                                                     </form>
 
                                                     <div class="mt-4 pt-3 text-center">
