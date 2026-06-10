@@ -2,9 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Http\Controllers\ResultatsController;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
@@ -15,8 +13,6 @@ class ResultatsTest extends TestCase
     {
         parent::setUp();
 
-        Cache::store('file')->forget(ResultatsController::CACHE_KEY);
-
         Schema::create('admisconcoursidsi', function (Blueprint $table): void {
             $table->id();
             $table->string('matricule')->nullable();
@@ -26,13 +22,6 @@ class ResultatsTest extends TestCase
             $table->string('concours')->nullable();
             $table->string('annee')->nullable();
         });
-    }
-
-    protected function tearDown(): void
-    {
-        Cache::store('file')->forget(ResultatsController::CACHE_KEY);
-
-        parent::tearDown();
     }
 
     public function test_results_page_is_public_and_only_contains_the_requested_year(): void
@@ -75,7 +64,7 @@ class ResultatsTest extends TestCase
             ->assertSee('const ADMIS_2026_2027', false);
     }
 
-    public function test_admitted_candidates_table_is_only_queried_on_the_first_visit(): void
+    public function test_each_page_request_reads_the_current_database_contents(): void
     {
         DB::table('admisconcoursidsi')->insert([
             'matricule' => 'CM20260002',
@@ -86,17 +75,25 @@ class ResultatsTest extends TestCase
             'annee' => '2026-2027',
         ]);
 
-        $tableQueryCount = 0;
+        $firstResponse = $this->get(route('resultats.index'));
 
-        DB::listen(function ($query) use (&$tableQueryCount): void {
-            if (str_contains(strtolower($query->sql), 'admisconcoursidsi')) {
-                $tableQueryCount++;
-            }
-        });
+        $firstResponse
+            ->assertOk()
+            ->assertSee('CM20260002')
+            ->assertDontSee('CM20260003');
 
-        $this->get(route('resultats.index'))->assertOk();
-        $this->get(route('resultats.index'))->assertOk();
+        DB::table('admisconcoursidsi')->insert([
+            'matricule' => 'CM20260003',
+            'nom' => 'YAO',
+            'prenoms' => 'Armand',
+            'genre' => 'M',
+            'concours' => 'Mastère',
+            'annee' => '2026-2027',
+        ]);
 
-        $this->assertSame(1, $tableQueryCount);
+        $this->get(route('resultats.index'))
+            ->assertOk()
+            ->assertSee('CM20260002')
+            ->assertSee('CM20260003');
     }
 }
