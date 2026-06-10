@@ -344,7 +344,7 @@
         <div class="results-hero">
             <span class="results-session">Session {{ $annee }}</span>
             <h1>Résultats des concours</h1>
-            <p>Consultez votre admission avec votre matricule ou votre nom de famille.</p>
+            <p>Consultez votre admissibilité avec votre matricule ou votre nom de famille.</p>
         </div>
     </div>
 </header>
@@ -373,7 +373,7 @@
                     </button>
                 </div>
                 <p class="results-help">
-                    La recherche par matricule affiche une personne. La recherche par nom affiche tous les admis portant ce nom.
+                    La recherche par matricule affiche une personne. La recherche par nom affiche tous les admissibles portant ce nom.
                 </p>
             </form>
 
@@ -385,7 +385,7 @@
 
             <div class="results-state" id="results-empty-state" role="status" hidden>
                 <i class="mdi mdi-account-alert-outline" aria-hidden="true"></i>
-                <strong>Aucun admis trouvé</strong>
+                <strong>Aucun admissible trouvé</strong>
                 <span>Vérifiez le matricule ou saisissez uniquement le nom de famille.</span>
             </div>
 
@@ -465,7 +465,7 @@
             });
 
             const total = results.length;
-            count.textContent = `${total} admis`;
+            count.textContent = `${total} admissible`;
         };
 
         form.addEventListener('submit', (event) => {

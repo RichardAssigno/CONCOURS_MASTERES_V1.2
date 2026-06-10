@@ -54,6 +54,14 @@ class ResultatsTest extends TestCase
                 'concours' => 'Cycle ingénieur',
                 'annee' => '2025-2026',
             ],
+            [
+                'matricule' => 'CM20260002',
+                'nom' => 'TRAORE',
+                'prenoms' => 'Mariam',
+                'genre' => 'F',
+                'concours' => 'MASTER EN SECURITE, CYBERSECURITE ET INTELLIGENCE ARTIFICIELLE',
+                'annee' => '2026-2027',
+            ],
         ]);
 
         $response = $this->get(route('resultats.index'));
@@ -61,6 +69,8 @@ class ResultatsTest extends TestCase
         $response
             ->assertOk()
             ->assertSee('CM20260001')
+            ->assertSee('CM20260002')
+            ->assertSee('MASTER EN SECURITE, CYBERSECURITE ET INTELLIGENCE ARTIFICIELLE')
             ->assertDontSee('CM20250001')
             ->assertSee('const ADMIS_2026_2027', false);
     }
