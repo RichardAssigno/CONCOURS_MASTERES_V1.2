@@ -465,7 +465,7 @@
             });
 
             const total = results.length;
-            count.textContent = `${total} admissible`;
+            count.textContent = `${total} admissible(s)`;
         };
 
         form.addEventListener('submit', (event) => {

@@ -74,6 +74,11 @@
                                                                     </label>
                                                                 </div>
                                                             </div>
+                                                            <div class="col-auto">
+                                                                <a href="{{ route('password.request') }}" class="text-primary font-size-13">
+                                                                    Mot de passe oublié ?
+                                                                </a>
+                                                            </div>
                                                         </div>
 
                                                         <div class="mb-3">

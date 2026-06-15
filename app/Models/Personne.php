@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use App\Notifications\ReinitialisationMotDePasse;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
 class Personne extends Authenticatable
 {
+    use Notifiable;
+
     protected $table = 'personnes';
 
     protected $fillable = [
@@ -44,6 +48,11 @@ class Personne extends Authenticatable
         'password',
         'remember_token'
     ];
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new ReinitialisationMotDePasse($token));
+    }
 
     public static function getInfosCandidat($idPersonne, $idSession)
     {
@@ -106,4 +115,3 @@ class Personne extends Authenticatable
 
 
 }
-
