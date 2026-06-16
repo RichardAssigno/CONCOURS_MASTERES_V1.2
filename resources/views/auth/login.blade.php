@@ -94,11 +94,10 @@
 
                                                     <div class="mt-4 pt-3 text-center">
                                                         <p class="text-muted mb-0">Vous n'avez pas de compte ?
-                                                            <a href="{{ route("inscription") }}" class="text-primary fw-semibold">S'inscrire</a>
+                                                            <a href="{{ route('inscription', ['code' => $codeConcours]) }}" class="text-primary fw-semibold">S'inscrire</a>
                                                         </p>
                                                     </div>
                                                 </div>
-
                                                 <div class="mt-4 text-center">
                                                     <p class="mb-0">&copy; <script>document.write(new Date().getFullYear())</script> INP-HB</p>
                                                 </div>

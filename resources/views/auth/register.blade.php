@@ -95,7 +95,7 @@
 
 
                                                     <div class="mt-4 pt-3 text-center">
-                                                        <p class="text-muted mb-0">Vous avez déjà un compte ? <a href="{{route("login")}}" class="text-primary fw-semibold"> Se Connecter </a> </p>
+                                                        <p class="text-muted mb-0">Vous avez déjà un compte ? <a href="{{route('login', ['code' => $codeConcours]) }}" class="text-primary fw-semibold"> Se Connecter </a> </p>
                                                     </div>
                                                 </div>
                                                 <div class="mt-4 text-center">

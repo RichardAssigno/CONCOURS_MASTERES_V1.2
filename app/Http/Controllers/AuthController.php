@@ -26,9 +26,13 @@ class AuthController extends Controller
         $this->matriculeService = $matriculeService;
     }
 
-    public function login(){
+    public function login($code = null){
 
-        return view('auth.login');
+        return view('auth.login', [
+
+            'codeConcours' => $code,
+
+        ]);
 
     }
 
@@ -41,7 +45,8 @@ class AuthController extends Controller
             if(!is_null($concours)){
 
                 return view('auth.register', [
-                    "concours" => $concours
+                    "concours" => $concours,
+                    "codeConcours" => $code,
                 ]);
 
             }
@@ -53,7 +58,8 @@ class AuthController extends Controller
 
         return view('auth.register', [
 
-            "concoursouvert" => $concoursouvert
+            "concoursouvert" => $concoursouvert,
+            "codeConcours" => $code,
 
         ]);
 

@@ -20,18 +20,12 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {return Auth::guard('personne')->check() ? redirect()->route('tableaudebord.index') : redirect()->route('login');})->name('home');
 
 
-Route::get('login', [\App\Http\Controllers\AuthController::class, 'login'])->name('login');
+Route::get('login/{code?}', [\App\Http\Controllers\AuthController::class, 'login'])->name('login');
 Route::middleware('guest:personne')->group(function () {
-    Route::get('/mot-de-passe-oublie', [PasswordResetController::class, 'create'])
-        ->name('password.request');
-    Route::post('/mot-de-passe-oublie', [PasswordResetController::class, 'store'])
-        ->middleware('throttle:5,1')
-        ->name('password.email');
-    Route::get('/reinitialiser-mot-de-passe/{token}', [PasswordResetController::class, 'edit'])
-        ->name('password.reset');
-    Route::post('/reinitialiser-mot-de-passe', [PasswordResetController::class, 'update'])
-        ->middleware('throttle:5,1')
-        ->name('password.update');
+    Route::get('/mot-de-passe-oublie', [PasswordResetController::class, 'create'])->name('password.request');
+    Route::post('/mot-de-passe-oublie', [PasswordResetController::class, 'store'])->middleware('throttle:5,1')->name('password.email');
+    Route::get('/reinitialiser-mot-de-passe/{token}', [PasswordResetController::class, 'edit'])->name('password.reset');
+    Route::post('/reinitialiser-mot-de-passe', [PasswordResetController::class, 'update'])->middleware('throttle:5,1')->name('password.update');
 });
 Route::get('/resultats', [ResultatsController::class, 'index'])->name('resultats.index');
 Route::post('/login-concours', [\App\Http\Controllers\AuthController::class, 'recupererconcours'])->name("login.concours");
